@@ -1,0 +1,1 @@
+pandoc -s -t revealjs gwt-aujourdhui.md -o gwt-aujourdhui.html --css reveal.js/css/theme/beige.css --slide-level 2
