@@ -10,11 +10,61 @@ Speaker **Devoxx**, **GWT.create**, **Paris**/**Toulouse JUG**, etc...
 
 @ltearno www.lteconsulting.fr
 
-**Full stack** !
+**Full stack (x86_64 to JavaScript)** !
 
+## Objectifs
 
+Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.
 
+- Traitement des annotations à la compilation,
+- Génération de nouvelles classes Java,
+- Génération de fichiers de configuration,
+- etc...
 
+## Avantages
+
+- Pas d'instrumentation du byte-code,
+- Pas de traitement au runtime donc pas d'impact sur les performances.
+
+## Histoire
+
+- Commentaires Javadoc,
+- Annotation Processing Tool,
+- et maintenant la JSR-269
+
+## Principes
+
+- On fournit (par SPI) un processeur d'annotation,
+- javac gère les `rounds` de processing,
+- A chaque round, le processeur a accès à l'AST des classes parsées,
+- Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au prochain `round`.  
+
+## JAVAC
+
+Paramètres...
+
+-s -sourcePath, ...
+
+ATTENTION : le warning si on ne met pas *-implicit:none*
+
+## Rappel, création d'une annotation
+
+	public @interface MonAnnotation
+	{
+		...
+	}
+
+## Limitations
+
+- Pas possible de modifier des classes existantes
+- Certains bug ne permettent pas de traiter correctement les génériques
+
+## Au delà des limitations
+
+- Lombok : quelques hack pour 
+- Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques
+
+## Tests unitaires ?
 
 ## links
 

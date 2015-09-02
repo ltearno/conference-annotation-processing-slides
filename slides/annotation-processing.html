@@ -38,7 +38,71 @@
 <p><strong>ArchiDév</strong> passionné chez <strong>LTE Consulting</strong></p>
 <p>Speaker <strong>Devoxx</strong>, <strong>GWT.create</strong>, <strong>Paris</strong>/<strong>Toulouse JUG</strong>, etc...</p>
 <p><span class="citation" data-cites="ltearno">@ltearno</span> www.lteconsulting.fr</p>
-<p><strong>Full stack</strong> !</p>
+<p><strong>Full stack (x86_64 to JavaScript)</strong> !</p>
+</section>
+<section id="objectifs" class="slide level2">
+<h1>Objectifs</h1>
+<p>Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.</p>
+<ul>
+<li>Traitement des annotations à la compilation,</li>
+<li>Génération de nouvelles classes Java,</li>
+<li>Génération de fichiers de configuration,</li>
+<li>etc...</li>
+</ul>
+</section>
+<section id="avantages" class="slide level2">
+<h1>Avantages</h1>
+<ul>
+<li>Pas d'instrumentation du byte-code,</li>
+<li>Pas de traitement au runtime donc pas d'impact sur les performances.</li>
+</ul>
+</section>
+<section id="histoire" class="slide level2">
+<h1>Histoire</h1>
+<ul>
+<li>Commentaires Javadoc,</li>
+<li>Annotation Processing Tool,</li>
+<li>et maintenant la JSR-269</li>
+</ul>
+</section>
+<section id="principes" class="slide level2">
+<h1>Principes</h1>
+<ul>
+<li>On fournit (par SPI) un processeur d'annotation,</li>
+<li>javac gère les <code>rounds</code> de processing,</li>
+<li>A chaque round, le processeur a accès à l'AST des classes parsées,</li>
+<li>Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au prochain <code>round</code>.</li>
+</ul>
+</section>
+<section id="javac" class="slide level2">
+<h1>JAVAC</h1>
+<p>Paramètres...</p>
+<p>-s -sourcePath, ...</p>
+<p>ATTENTION : le warning si on ne met pas <em>-implicit:none</em></p>
+</section>
+<section id="rappel-création-dune-annotation" class="slide level2">
+<h1>Rappel, création d'une annotation</h1>
+<pre><code>public @interface MonAnnotation
+{
+    ...
+}</code></pre>
+</section>
+<section id="limitations" class="slide level2">
+<h1>Limitations</h1>
+<ul>
+<li>Pas possible de modifier des classes existantes</li>
+<li>Certains bug ne permettent pas de traiter correctement les génériques</li>
+</ul>
+</section>
+<section id="au-delà-des-limitations" class="slide level2">
+<h1>Au delà des limitations</h1>
+<ul>
+<li>Lombok : quelques hack pour</li>
+<li>Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques</li>
+</ul>
+</section>
+<section id="tests-unitaires" class="slide level2">
+<h1>Tests unitaires ?</h1>
 </section>
 <section id="links" class="slide level2">
 <h1>links</h1>
