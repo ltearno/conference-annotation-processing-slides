@@ -29,8 +29,8 @@ Pluggable Annotation Processing API permet de s'inscrire dans le processus de co
 ## Histoire
 
 - Commentaires Javadoc,
-- Annotation Processing Tool,
-- et maintenant la JSR-269
+- APT ou [Annotation Processing Tool](http://docs.oracle.com/javase/7/docs/technotes/guides/apt/), retiré car [non extensible à java > 5](http://openjdk.java.net/jeps/117) avec java 7,
+- et depuis 2006 (java 6) la [JSR-269](https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html), créé par Joe Darcy
 
 ## Principes
 
@@ -47,6 +47,8 @@ Paramètres...
 
 ATTENTION : le warning si on ne met pas *-implicit:none*
 
+http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
+
 ## Rappel, création d'une annotation
 
 	public @interface MonAnnotation
@@ -61,22 +63,28 @@ ATTENTION : le warning si on ne met pas *-implicit:none*
 
 ## Au delà des limitations
 
-- Lombok : quelques hack pour 
+- Lombok : quelques hack pour accéder à l'implémentation (javac de sun et jdt) et modifier l'AST
 - Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques
 
-## Tests unitaires ?
+## Tests unitaires
+
+## Utilisations
+
+- Dagger,
+- Google Auto,
+- Immutables,
+- Hexa Binding,
+- Lombok,
+- GWT,
+- JPA model generation (JSR-317)
+
+## Lombok
+
+- http://stackoverflow.com/questions/6107197/how-does-lombok-work
 
 ## links
 
-http://openjdk.java.net/jeps/117
 
-https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html
-
-http://docs.oracle.com/javase/7/docs/technotes/guides/apt/
-
-http://stackoverflow.com/questions/8029279/well-known-jsr-269-pluggable-annotation-processing-api-users-besides-jpa-2-0
-
-http://stackoverflow.com/questions/6107197/how-does-lombok-work
 
 Articles :
 http://www.javabeat.net/java-6-0-features-part-2-pluggable-annotation-processing-api/
