@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title>Pluggable Annotation Processing API</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="reveal.js/css/theme/beige.css"/>
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+    <!--[if lt IE 9]>
+    <script src="reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Pluggable Annotation Processing API</h1>
+    <h3 class="date">JUG Toulouse - 2015 - LTE Consulting</h3>
+</section>
+
+<section id="arnaud-tournier" class="slide level2">
+<h1>Arnaud Tournier</h1>
+<p><strong>ArchiDév</strong> passionné chez <strong>LTE Consulting</strong></p>
+<p>Speaker <strong>Devoxx</strong>, <strong>GWT.create</strong>, <strong>Paris</strong>/<strong>Toulouse JUG</strong>, etc...</p>
+<p><span class="citation" data-cites="ltearno">@ltearno</span> www.lteconsulting.fr</p>
+<p><strong>Full stack</strong> !</p>
+</section>
+<section id="links" class="slide level2">
+<h1>links</h1>
+<p>http://openjdk.java.net/jeps/117</p>
+<p>https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html</p>
+<p>http://docs.oracle.com/javase/7/docs/technotes/guides/apt/</p>
+<p>http://stackoverflow.com/questions/8029279/well-known-jsr-269-pluggable-annotation-processing-api-users-besides-jpa-2-0</p>
+<p>http://stackoverflow.com/questions/6107197/how-does-lombok-work</p>
+<p>Articles : http://www.javabeat.net/java-6-0-features-part-2-pluggable-annotation-processing-api/</p>
+<p>Lombok : http://notatube.blogspot.fr/2010/11/project-lombok-trick-explained.html</p>
+<p>Description des phases de compilation javac http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html</p>
+<p>http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor</p>
+<p>https://deors.wordpress.com/2011/10/08/annotation-processors/</p>
+<p>http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php</p>
+<p>http://www.angelikalanger.com/Conferences/Slides/JavaAnnotationProcessing-JSpring-2008.pdf</p>
+<p>https://weblogs.java.net/blog/emcmanus/archive/2006/06/using_annotatio.html</p>
+<p>http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/validator-annotation-processor.html</p>
+<p>http://scg.unibe.ch/archive/projects/Erni08b.pdf ****</p>
+<p>https://openclassrooms.com/courses/java-et-les-annotations/creez-et-utilisez-vos-propres-annotations</p>
+<p>histoire et APT https://docs.oracle.com/javase/7/docs/technotes/guides/apt/GettingStarted.html</p>
+<p>https://www.google.fr/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;uact=8&amp;ved=0CCEQFjAAahUKEwi9gJu1gtPHAhVF6RQKHU9ZCPA&amp;url=http%3A%2F%2Fwww.parisjug.org%2Fxwiki%2Fwiki%2Foldversion%2Fdownload%2FMeeting%2F20130212%2FpresentationDimitriBaeliGillesDiGuglielmo.pdf&amp;ei=0x_kVf3KNcXSU8-yoYAP&amp;usg=AFQjCNGgRSIrnU3yt0BMokotzqEC3aZ3VA&amp;sig2=AKXWbGrIBdbw9N5SJhYr-w</p>
+<p>https://www.parleys.com/search/croisier : il y a 4 vidéos sur les annotations</p>
+<p>http://fr.slideshare.net/Zenika/annotations-paris-jug</p>
+<p>http://thecodersbreakfast.net/index.php?post/2010/11/26/Conference-Annotations-les-slides</p>
+<p>http://www.touilleur-express.fr/2010/12/17/soiree-java-avance-avec-olivier-croisier-au-paris-jug/</p>
+</section>
+<section id="email-eugene-lucas-immutables" class="slide level2">
+<h1>email Eugene Lucas (Immutables)</h1>
+<p>Hi Eugene,</p>
+<p>I am writing to you because you are the main committer of the immutables.io project.</p>
+<p>I got a question related to annotation processing.</p>
+<p>In the immutable docs, this sentence can be read :</p>
+<pre><code>&quot;Immutables do not support type parameters in the sense that you cannot add type variables to the abstract value type and construct parametrized instances.&quot;</code></pre>
+<p>As i am also writing a project using annotation processing to generate boiler plate code, i think i faced a similar problem :</p>
+<p>When a generated type is referenced and parametrized, calling the TypeMirror.toString() method will return &quot;<any>&quot; instead of the fully qualified name of the refered type. It does not happen if the referenced type is not parametrized.</p>
+<p>This behavior does not happen in Eclipse (where the JDT compiler is used). JDT always returns the correct result. This makes me think that the javac behavior is buggy.</p>
+<p>So my first question is :</p>
+<ul>
+<li>is the immutables.io limitation due to that bug in the java compiler ?</li>
+<li>do you foresee any solution to mitigate this problem ? i find myself in a kind of despair because i cannot find a way to get the correct information from the compiler...</li>
+</ul>
+<p>I've also contacted people from the Dagger project, which i think had similar problems (some comments in their code lead me to this idea)...</p>
+<p>Thanks</p>
+<p>Hi Arnaud</p>
+<p>I really don't know if we (at Immutables) are gave up on full generic support, or just waiting the right time or tools, or just inspiration. So to the point, I believe it is possible to get the information we need during annotation processing, but it's complicated because of 2 factors: 1. Annotation processing api and utilities are not powerful enough to do proper type variable handling in all cases. 2. Both Javac's and Eclipse's annotation processing api implementations have various bugs in handling of generics.</p>
+<p>A level of generic support should be also considered. If, for example, Immutables do not allow fully parametrized types, it does support extending/implementing types supplying actual type parameters. It was much easier to do this than full generic support, but still, it required to work around a number of Javac/Eclipse bugs. Full support would require to 1) Extract most precise information about declarations (which would not be distorted by bugs in mirror api implementation) 2) Resolve correct types, which might involve type variable substitution, upper and lower bounds, intersection types depending on what you need to support.</p>
+<p>The 1) could be archived by decomposing DeclaredType and it's type arguments. In worst case it might require downcasting and extracting Eclipse and Javac specific ASTs to collect precise information. Such downcasting is heavily used by Lombok. Immutables uses it from time to time to overcome compiler bugs or limitations.</p>
+<p>The 2) require some non-trivial computations, resembling ones in Guava's com.google.common.reflect.TypeResolver for reflection.</p>
+<p>Hope this may help you. If you came up with some new information on this or have additional question feel free to share it or ask.</p>
+<p>Thanks</p>
+</section>
+<section id="email-question-m.-gruber-dagger" class="slide level2">
+<h1>email question M. Gruber (Dagger)</h1>
+<p>Hi M. Gruber,</p>
+<p>I am a developper and found your contact on github.</p>
+<p>Currently writing a data binding library using annotation processing to generate boilerplate code, i found a problem that i think you also faced in the Dagger project.</p>
+<p>When analysing existing type elements in classes, if a type element is a class generated during the annotation processing and parametrized with type parameters, then the toString() method of its TypeMirror returns <any> instead of the generated class name.</p>
+<p>This does not happen when the generated class has no type parameter specified.</p>
+<p>For example if this is written in a source file :</p>
+<pre><code>class Blabla
+{
+    GeneratedClass&lt;Integer&gt; field;
+}</code></pre>
+<p>the TypeMirror.toString() will return &quot;<any>&quot; for the field's type. But if this is written :</p>
+<pre><code>class Blabla
+{
+    GeneratedClass field;
+}</code></pre>
+<p>the same methods returns the correct result which is &quot;GeneratedClass&quot;.</p>
+<p>In the github repo of Dagger, in this file :</p>
+<pre><code>https://github.com/square/dagger/blob/master/compiler/src/main/java/dagger/internal/codegen/Util.java</code></pre>
+<p>at line 165, i found</p>
+<pre><code>    // Paramterized types which don&#39;t exist are returned as an error type whose name is &quot;&lt;any&gt;&quot;
+    if (&quot;&lt;any&gt;&quot;.equals(errorType.toString())) {
+      throw new CodeGenerationIncompleteException(
+          &quot;Type reported as &lt;any&gt; is likely a not-yet generated parameterized type.&quot;);
+    }</code></pre>
+<p>So my question is : do you know a way to obtain the correct information for the type ? Maybe it's on purpose or a bug, i wanted to have your advice.</p>
+<p>Just another info : inside Eclipse, that is compiling the java code with JDT, the thing works fine and gievs &quot;GeneratedClass<Integer>&quot;.</p>
+<p>So that seems to be a bug on javac side, what do you think ?</p>
+<p>Thanks a lot for your answer !</p>
+</section>
+<section id="quest-ce-que-gwt" class="slide level2">
+<h1>Qu'est-ce que GWT ?</h1>
+<table>
+<tr>
+<td style="vertical-align:top;">
+<img style="border:none;box-shadow:none;" src="navLogoBig.png" alt="">
+</td>
+<td>
+<ul>
+<li>Un outil de développement pour le Web</li>
+<li>Coder en <strong>Java</strong></li>
+<li>Améliorer la <strong>productivité</strong> du développeur</li>
+<li>Offir un maximum de <strong>performances</strong> aux utilisateurs</li>
+</ul>
+</td>
+</tr>
+</table>
+</section>
+<section id="section" class="slide level2">
+<h1></h1>
+<p><img src="utilisationTypique.png" style="box-shadow:none; border:none;"/></p>
+</section>
+<section id="section-1" class="slide level2">
+<h1></h1>
+<p><img src="utilisationHybride.png" style="box-shadow:none; border:none;"/></p>
+</section>
+    </div>
+  </div>
+
+
+  <script src="reveal.js/lib/js/head.min.js"></script>
+  <script src="reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: 'reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: 'reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+    </body>
+</html>

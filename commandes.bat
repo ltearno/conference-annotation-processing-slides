@@ -1,1 +1,1 @@
-pandoc -s -t revealjs gwt-aujourdhui.md -o gwt-aujourdhui.html --css reveal.js/css/theme/beige.css --slide-level 2
+pandoc -s -t revealjs annotation-processing.md -o annotation-processing.html --css reveal.js/css/theme/beige.css --slide-level 2
