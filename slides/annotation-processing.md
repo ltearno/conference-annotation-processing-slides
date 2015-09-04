@@ -17,9 +17,12 @@ Speaker **Devoxx**, **GWT.create**, **Paris**/**Toulouse JUG**, etc...
 Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.
 
 - Traitement des annotations à la compilation,
-- Génération de nouvelles classes Java,
+- Génération de code,
 - Génération de fichiers de configuration,
+- Vérifications,
 - etc...
+
+On ne modifie pas les sources existants !
 
 ## Avantages
 
@@ -39,22 +42,95 @@ Pluggable Annotation Processing API permet de s'inscrire dans le processus de co
 - A chaque round, le processeur a accès à l'AST des classes parsées,
 - Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au prochain `round`.  
 
+## Faire un processeur d'annotations
+
+### Créer l'annotation (ou pas)
+
+AJOUTER RETENTION SOURCE
+
+    import java.lang.annotation.*;
+
+    // package, class, method, ...
+    @Target( value = { ElementType.METHOD } )
+    @Retention( RetentionPolicy.SOURCE )
+    public @interface MonAnnotation {
+    }
+
+### La base du processeur
+
+    // on peut aussi utiliser "*"
+    @SupportedAnnotationTypes(value= {"fr.lteconsulting.MonAnnotation"})
+    @SupportedSourceVersion(SourceVersion.RELEASE_6)
+    // AbstractProcessor implemente javax.annotation.processing.Processor
+    public class MyAnnotationProcessor extends AbstractProcessor  {
+        @Override
+        public boolean process(Set<?> extends TypeElement> annotations, RoundEnvironment roundEnv){
+            Types typeUtils = processingEnv.getTypeUtils();
+            Elements elementUtils = processingEnv.getElementUtils();
+            Messager messager = processingEnv.getMessager();
+
+            for (TypeElement element : annotations)
+                System.out.println(element.getQualifiedName());
+            return true;
+        }
+    }
+
+### Le messager
+
+    messager.printMessage( Kind.ERROR, 
+        "Cette classe n'a pas de champ ID : " + clazz.getSimpleName() );
+
+    error: Cette classe n'a pas de champ ID : fr.lteconsulting.Data
+    1 error
+
+MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE
+
+### Récupérer un type
+
+    TypeMirror serializable = processingEnv.getElementUtils().getTypeElement(Serializable.class.getCanonicalName()).asType();
+
+Exemple de codes :
+- http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
+
+## La compilation Java
+
+### 3 phases
+
+![Plan d'exécution de javac](javac-flow.png)
+
+- *Parse* et *Enter*
+- *Annotation Processing*
+- *Analyse* et *Generate*
+
+http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html
+
+## Découverte des processeurs par SPI
+
+Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la liste des processeurs :
+
+    fr.lteconsulting.MyAnnotationProcessor
+
+Packager le tout dans un jar et le tour est joué !
+
+## Intégration dans Eclipse
+
+Eclipse utilise son propre compilateur, JDT.
+
+Il faut configurer le projet ou utiliser m2e, ou autre...
+
 ## JAVAC
 
 Paramètres...
 
 -s -sourcePath, ...
 
+Pour nommer explicitement le processeur :
+
+-processor *fr.lteconsulting.MyAnnotationProcessor*
+
 ATTENTION : le warning si on ne met pas *-implicit:none*
 
 http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
-
-## Rappel, création d'une annotation
-
-	public @interface MonAnnotation
-	{
-		...
-	}
 
 ## Limitations
 
@@ -84,18 +160,10 @@ http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searchin
 
 ## links
 
-
-
-Articles :
-http://www.javabeat.net/java-6-0-features-part-2-pluggable-annotation-processing-api/
+## Pas traités...
 
 Lombok :
 http://notatube.blogspot.fr/2010/11/project-lombok-trick-explained.html
-
-Description des phases de compilation javac
-http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html
-
-http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
 
 https://deors.wordpress.com/2011/10/08/annotation-processors/
 
