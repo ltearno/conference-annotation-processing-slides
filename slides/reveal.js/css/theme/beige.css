@@ -50,6 +50,11 @@ body {
 .reveal h1 {
   font-size: 3.77em; }
 
+.reveal .level3 h1
+{
+  font-size: 2.11em;
+}
+
 .reveal h2 {
   font-size: 2.11em; }
 
