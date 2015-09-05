@@ -2,7 +2,7 @@
 %
 % JUG Toulouse - 2015 - LTE Consulting
 
-## Arnaud Tournier
+### Arnaud Tournier
 
 **ArchiDév** passionné chez **LTE Consulting**
 
@@ -13,6 +13,7 @@ Speaker **Devoxx**, **GWT.create**, **Paris**/**Toulouse JUG**, etc...
 **Full stack (x86_64 to JavaScript)** !
 
 ## Objectifs
+###
 
 Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.
 
@@ -25,72 +26,266 @@ Pluggable Annotation Processing API permet de s'inscrire dans le processus de co
 On ne modifie pas les sources existants !
 
 ## Avantages
+###
 
-- Pas d'instrumentation du byte-code,
-- Pas de traitement au runtime donc pas d'impact sur les performances.
+Pas d'instrumentation du byte-code, donc plus simple.
+
+Pas de traitement au runtime donc pas d'impact sur les performances.
+
+Le code généré est visible.
 
 ## Histoire
 
-- Commentaires Javadoc,
-- APT ou [Annotation Processing Tool](http://docs.oracle.com/javase/7/docs/technotes/guides/apt/), retiré car [non extensible à java > 5](http://openjdk.java.net/jeps/117) avec java 7,
-- et depuis 2006 (java 6) la [JSR-269](https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html), créé par Joe Darcy
+### Commentaires Javadoc
 
-## Principes
+XDoclet
 
-- On fournit (par SPI) un processeur d'annotation,
-- javac gère les `rounds` de processing,
+*TODO : EXEMPLE*
+
+### APT
+
+[Annotation Processing Tool](http://docs.oracle.com/javase/7/docs/technotes/guides/apt/), retiré officiellement avec Java 7 car [non extensible à Java > 5](http://openjdk.java.net/jeps/117).
+
+Outil lancé en dehors de la compilation.
+
+### Pluggable Annotation Processing API
+
+Depuis 2006 (java 6) la [JSR-269](https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html), créé par Joe Darcy.
+
+Intégré à la compilation.
+
+## Principe
+###
+
+- On fournit un processeur d'annotation,
+- Le compilateur gère les `rounds` de processing,
 - A chaque round, le processeur a accès à l'AST des classes parsées,
-- Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au prochain `round`.  
+- Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au `round` suivant.
 
-## Faire un processeur d'annotations
+## Exemple
 
-### Créer l'annotation (ou pas)
-
-AJOUTER RETENTION SOURCE
+### Création de l'annotation
 
     import java.lang.annotation.*;
 
     // package, class, method, ...
     @Target( value = { ElementType.METHOD } )
     @Retention( RetentionPolicy.SOURCE )
-    public @interface MonAnnotation {
+    public @interface MonAnnotation
+    {
+        ...
     }
 
-### La base du processeur
+### Le processeur
 
-    // on peut aussi utiliser "*"
-    @SupportedAnnotationTypes(value= {"fr.lteconsulting.MonAnnotation"})
-    @SupportedSourceVersion(SourceVersion.RELEASE_6)
-    // AbstractProcessor implemente javax.annotation.processing.Processor
-    public class MyAnnotationProcessor extends AbstractProcessor  {
+    @SupportedAnnotationTypes( value= { "fr.lteconsulting.MonAnnotation" } )
+    @SupportedSourceVersion( SourceVersion.RELEASE_6 )
+    public class MonAnnotationProcessor extends AbstractProcessor  {
         @Override
-        public boolean process(Set<?> extends TypeElement> annotations, RoundEnvironment roundEnv){
+        public boolean process( Set<?> extends TypeElement> annotations,
+                                RoundEnvironment roundEnv ) {
             Types typeUtils = processingEnv.getTypeUtils();
             Elements elementUtils = processingEnv.getElementUtils();
             Messager messager = processingEnv.getMessager();
 
-            for (TypeElement element : annotations)
+            for ( TypeElement element : annotations )
                 System.out.println(element.getQualifiedName());
             return true;
         }
     }
 
-### Le messager
+### Le fichier SPI
 
-    messager.printMessage( Kind.ERROR, 
-        "Cette classe n'a pas de champ ID : " + clazz.getSimpleName() );
+Pour packager un processeur, le plus simple est d'intégrer un fichier SPI dans son jar.
 
-    error: Cette classe n'a pas de champ ID : fr.lteconsulting.Data
-    1 error
+### Un bout de code
 
-MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE
+    class UneClasse {
+        @MonAnnotation
+        void uneMethode()
+        {
+            ...
+        }
+    }
+
+### Packaging et compilation
+
+Le processeur et le fichier SPI sont dans un jar.
+
+Ce jar est dans le class path au moment de la compilation.
+
+C'est tout !
+
+TODO dire où sont générés les classes générées
+
+### Sortie de notre exemple
+
+    fr.lteconsulting.UneClasse.uneMethode()
+
+### Exemples en ligne
+
+- http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
+
+## Fonctionnement
+
+###
+
+A chaque round, le processeur doit traiter les classes générées au round précédent. S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).
+
+### Découverte des processeurs
+
+Les proceseurs sont découverts par le compilateur. `JavaCompiler` fournit des options pour controller l'ensemble des processeurs disponibles :
+
+- une liste prédéfinie,
+- un chemin de recherche,
+- utiliser SPI.
+
+### Choix du processeur
+
+Appel des processeurs en fonction :
+
+- des annotations présentes dans les classes traitées,
+- les annotations supportées par tel processeur,
+- le fait qu'un processeur ait *claimé* une annotation.
+
+### Cycle de vie du processeur
+
+- Le compilateur instancie le processeur,
+- Appelle `init` avec un `ProcessingEnvironment`,
+- Appelle `getSupportedAnnotationTypes`, `getSupportedOptions` et `getSupportedSourceVersion`,
+- Et appelle `process` à chaque round.
+
+### A chaque round
+
+- javac calcule l'ensemble des annotations sur les classes en cours,
+- si au moins une annotation est présente, au fur et à mesure que les processeurs les *claime*, elles sont retirées des annotations non *matchées*.
+- quand l'ensemble est vide ou qu'il n'y a plus de processeur candidat, le round est fini.
+- si aucune annotation n'est présente, seuls les processeurs *universels* ("*") sont appelés, et reçoivent un ensemble vide.
+
+### Précautions !
+
+- Un processeur ne doit pas dépendre d'un autre,
+- Idempotent,
+- Commutatif.
+
+### L'interface Processor
+
+[`javax.annotation.processing.Processor`](http://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/Processor.html)
+
+    void init( ProcessingEnvironment processingEnv );
+
+    Set<String> getSupportedAnnotationTypes();
+
+    boolean process(    Set<? extends TypeElement> annotations,
+                        RoundEnvironment roundEnv );
+
+### ProcessingEnvironment
+
+[`javax.annotation.processing.ProcessingEnvironment`](http://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/ProcessingEnvironment.html)
+
+    // Utilitaires
+    Elements getElementUtils();
+    Types getTypeUtils();
+    Locale getLocale();
+    Map<String, String> getOptions();
+    SourceVersion getSourceVersion();
+    
+    // Création de fichiers
+    Filer getFiler();
+
+    // Affichage utilisateur
+    Messager getMessager();
+
+TODO : décrire ces choses
+
+### getSupportedAnnotationTypes
+
+- `*`
+- `fr.lteconsulting.annotations.*`
+- `fr.lteconsulting.annotations.MonAnnotation`
+
+### La méthode process
+
+    boolean process(    Set<? extends TypeElement> annotations,
+                        RoundEnvironment roundEnv)
+
+- On reçoit l'ensemble des annotations à traiter
+- On retourne `true` pour empêcher les autres processeurs d'être appelés
+
+### RoundEnvironment
+
+[`javax.annotation.processing.RoundEnvironment`](http://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/RoundEnvironment.html)
+
+Liste des classes dans le round :
+
+    Set<? extends Element> getRootElements()
+
+Liste des éléments annotés :
+
+    Set<? extends Element> getElementsAnnotatedWith(TypeElement a)
+    Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a)
+
+### Element
+
+[javax.lang.model.element.Element](http://docs.oracle.com/javase/7/docs/api/javax/lang/model/element/Element.html)
+
+Représente un *package*, une *classe*, une *méthode*, ...
+
+Pour parcourir les données d'un élément, il faut soit appeler `getKind()` soit utiliser un visiteur.
+
+**Ne pas utiliser `instanceof` !**
+
+### Element
+
+    // Visiter l'élément :
+    <R,P> R accept(ElementVisitor<R,P> v, P p);
+
+    // Obtenir le type :
+    TypeMirror asType();
+    
+    // Demander la sorte :
+    ElementKind getKind();
+
+    // Demander les annotations présentes sur l'élément :
+    List<? extends AnnotationMirror> getAnnotationMirrors();
+    <A extends Annotation> A getAnnotation(Class<A> annotationType);
+    
+    // Autres :
+    // getModifiers(); getSimpleName(); getEnclosingElement(); getEnclosedElements();
+
+### Les sortes d'Element
+
+`ElementKind`
+
+*annotation, class, constructeur, enum, une constante enum, parametre d'exception, champ, initializeur d'instance, interface, variable locale, méthode, package, paramètre, variable de resource, initializeur statique, paramètre de type, autres* (futur).
 
 ### Récupérer un type
 
     TypeMirror serializable = processingEnv.getElementUtils().getTypeElement(Serializable.class.getCanonicalName()).asType();
 
-Exemple de codes :
-- http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
+### Le Filer
+
+    Filer filer = processingEnv.getFiler();
+    try {
+        PrintWriter pw = new PrintWriter(filer.createResource(
+              StandardLocation.SOURCE_OUTPUT, "", "Todo.txt")
+              .openOutputStream());
+        pw.println("Quelque chose");
+        pw.close();
+    } catch (IOException ioe) {
+        messager.printMessage(Kind.ERROR, ioe.getMessage());
+    }
+
+### Le Messager
+
+    messager.printMessage( Kind.ERROR, 
+        "Cette classe n'a pas de champ ID : " + clazz.getSimpleName() );
+
+    // sortie :
+    error: Cette classe n'a pas de champ ID : fr.lteconsulting.Data
+    1 error
+
+MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE
 
 ## La compilation Java
 
@@ -104,6 +299,25 @@ Exemple de codes :
 
 http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html
 
+### JavaC
+
+Action     |   Paramètres
+-----------|--------
+Désigner un processeur |  -processor *fr.lteconsulting.MyAnnotationProcessor*
+Spécifier un chemin de recherche   | -processorPath *le_chemin*
+Passer des options  |  -A *cle=valeur*
+TODO   |  -proc:none ou -proc:any
+TODO   | -s
+TODO   |  -sourcePath
+TODO   | -implicit:none
+Affichage debug  |  -XprintRounds  -XprintProcessorInfo
+
+TODO autres options
+
+ATTENTION : le warning si on ne met pas *-implicit:none*
+
+http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
+
 ## Découverte des processeurs par SPI
 
 Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la liste des processeurs :
@@ -116,21 +330,9 @@ Packager le tout dans un jar et le tour est joué !
 
 Eclipse utilise son propre compilateur, JDT.
 
+Montrer aussi le messager
+
 Il faut configurer le projet ou utiliser m2e, ou autre...
-
-## JAVAC
-
-Paramètres...
-
--s -sourcePath, ...
-
-Pour nommer explicitement le processeur :
-
--processor *fr.lteconsulting.MyAnnotationProcessor*
-
-ATTENTION : le warning si on ne met pas *-implicit:none*
-
-http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
 
 ## Limitations
 
@@ -158,7 +360,18 @@ http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searchin
 
 - http://stackoverflow.com/questions/6107197/how-does-lombok-work
 
-## links
+## Liens
+
+[JM Doudoux](http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8)
+
+
+
+
+
+
+
+
+
 
 ## Pas traités...
 
@@ -166,8 +379,6 @@ Lombok :
 http://notatube.blogspot.fr/2010/11/project-lombok-trick-explained.html
 
 https://deors.wordpress.com/2011/10/08/annotation-processors/
-
-http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php
 
 http://www.angelikalanger.com/Conferences/Slides/JavaAnnotationProcessing-JSpring-2008.pdf
 
@@ -301,32 +512,3 @@ Just another info : inside Eclipse, that is compiling the java code with JDT, th
 So that seems to be a bug on javac side, what do you think ?
 
 Thanks a lot for your answer !
-
-
-
-
-
-## Qu'est-ce que GWT ?
-
-<table>
-<tr>
-<td style="vertical-align:top;">
-<img style="border:none;box-shadow:none;" src="navLogoBig.png" alt="">
-</td>
-<td>
-- Un outil de développement pour le Web
-- Coder en **Java**
-- Améliorer la **productivité** du développeur
-- Offir un maximum de **performances** aux utilisateurs
-</td>
-</tr>
-</table>
-
-##
-
-<img src="utilisationTypique.png" style="box-shadow:none; border:none;"/>
-
-##
-
-<img src="utilisationHybride.png" style="box-shadow:none; border:none;"/>
-
