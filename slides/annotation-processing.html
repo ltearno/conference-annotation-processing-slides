@@ -57,11 +57,20 @@
 <section><section id="histoire" class="titleslide slide level2"><h1>Histoire</h1></section><section id="commentaires-javadoc" class="slide level3">
 <h1>Commentaires Javadoc</h1>
 <p>XDoclet</p>
-<p><em>TODO : EXEMPLE</em></p>
+<pre><code>/****
+* Account entity bean
+*
+* @ejb.bean
+*     name=&quot;bank/Account&quot;
+*     jndi-name=&quot;ejb/bank/Account&quot;
+*     primkey-field=&quot;id&quot;
+*     schema = &quot;Customers&quot;
+* ...
+*/</code></pre>
 </section><section id="apt" class="slide level3">
 <h1>APT</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/technotes/guides/apt/">Annotation Processing Tool</a>, retiré officiellement avec Java 7 car <a href="http://openjdk.java.net/jeps/117">non extensible à Java &gt; 5</a>.</p>
-<p>Outil lancé en dehors de la compilation.</p>
+<p>Outil lancé en dehors de la compilation. Mirror API avec les packages com.sun.mirror.</p>
 </section><section id="pluggable-annotation-processing-api" class="slide level3">
 <h1>Pluggable Annotation Processing API</h1>
 <p>Depuis 2006 (java 6) la <a href="https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html">JSR-269</a>, créé par Joe Darcy.</p>
@@ -99,8 +108,10 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
         Elements elementUtils = processingEnv.getElementUtils();
         Messager messager = processingEnv.getMessager();
 
-        for ( TypeElement element : annotations )
-            System.out.println(element.getQualifiedName());
+        for ( TypeElement element : roundEnv.getElementsAnnotatedWith(MonAnnotation.class) )
+            processingEnv.getMessager().printMessage(
+                Diagnostic.Kind.NOTE,
+                element.getQualifiedName());
         return true;
     }
 }</code></pre>
@@ -253,6 +264,18 @@ List&lt;? extends AnnotationMirror&gt; getAnnotationMirrors();
 <pre><code>TypeMirror serializable = processingEnv.getElementUtils().getTypeElement(Serializable.class.getCanonicalName()).asType();</code></pre>
 </section><section id="le-filer" class="slide level3">
 <h1>Le Filer</h1>
+<p><a href="http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/Filer.html"><code>javax.annotation.processing.Filer</code></a></p>
+</section><section id="section-4" class="slide level3">
+<h1></h1>
+<p>Créer un nouveau source java</p>
+<pre><code>Filer filer = processingEnv.getFiler();
+JavaFileObject jfo = filer.createSourceFile(
+     classElement.getQualifiedName() + &quot;Info&quot;);
+PrintWriter pw = new PrintWriter( jfo );
+...</code></pre>
+</section><section id="section-5" class="slide level3">
+<h1></h1>
+<p>Créer une nouvelle resource</p>
 <pre><code>Filer filer = processingEnv.getFiler();
 try {
     PrintWriter pw = new PrintWriter(filer.createResource(
@@ -263,6 +286,12 @@ try {
 } catch (IOException ioe) {
     messager.printMessage(Kind.ERROR, ioe.getMessage());
 }</code></pre>
+</section><section id="utilisation-de-templates" class="slide level3">
+<h1>Utilisation de templates !</h1>
+<ul>
+<li>Velocity, ...</li>
+<li>Ne générer que le minimum de code !</li>
+</ul>
 </section><section id="le-messager" class="slide level3">
 <h1>Le Messager</h1>
 <pre><code>messager.printMessage( Kind.ERROR, 
@@ -295,32 +324,40 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Désigner un processeur</td>
-<td style="text-align: left;">-processor <em>fr.lteconsulting.MyAnnotationProcessor</em></td>
+<td style="text-align: left;">Génération des sources</td>
+<td style="text-align: left;">-s <em>répertoire</em></td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Désigner un processeur</td>
+<td style="text-align: left;">-processor <em>fr.lteconsulting.MyAnnotationProcessor</em>,<em>autre...</em></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Spécifier un chemin de recherche</td>
 <td style="text-align: left;">-processorPath <em>le_chemin</em></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Passer des options</td>
-<td style="text-align: left;">-A <em>cle=valeur</em></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">TODO</td>
-<td style="text-align: left;">-proc:none ou -proc:any</td>
+<td style="text-align: left;">-A<em>cle=valeur</em></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">TODO</td>
-<td style="text-align: left;">-s</td>
+<td style="text-align: left;">Désactiver l'AP</td>
+<td style="text-align: left;">-proc:none</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Seulement l'AP</td>
+<td style="text-align: left;">-proc:only</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">TODO</td>
 <td style="text-align: left;">-sourcePath</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">TODO</td>
 <td style="text-align: left;">-implicit:none</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">TODO</td>
+<td style="text-align: left;">-d</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Affichage debug</td>
@@ -332,7 +369,14 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <p>ATTENTION : le warning si on ne met pas <em>-implicit:none</em></p>
 <p>http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching</p>
 </section></section>
-<section><section id="découverte-des-processeurs-par-spi" class="titleslide slide level2"><h1>Découverte des processeurs par SPI</h1></section></section>
+<section><section id="découverte-des-processeurs-par-spi" class="titleslide slide level2"><h1>Découverte des processeurs par SPI</h1></section><section id="packaging-maven" class="slide level3">
+<h1>Packaging Maven</h1>
+<ul>
+<li>artefact <em>Annotations</em>,</li>
+<li>artefact <em>Processeurs</em>,</li>
+<li>artefacts <em>clients</em>.</li>
+</ul>
+</section></section>
 <section><section id="intégration-dans-eclipse" class="titleslide slide level2"><h1>Intégration dans Eclipse</h1></section></section>
 <section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section></section>
 <section><section id="au-delà-des-limitations" class="titleslide slide level2"><h1>Au delà des limitations</h1></section></section>

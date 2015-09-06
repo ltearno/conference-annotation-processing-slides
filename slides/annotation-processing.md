@@ -40,13 +40,23 @@ Le code généré est visible.
 
 XDoclet
 
-*TODO : EXEMPLE*
+    /****
+    * Account entity bean
+    *
+    * @ejb.bean
+    *     name="bank/Account"
+    *     jndi-name="ejb/bank/Account"
+    *     primkey-field="id"
+    *     schema = "Customers"
+    * ...
+    */
+
 
 ### APT
 
 [Annotation Processing Tool](http://docs.oracle.com/javase/7/docs/technotes/guides/apt/), retiré officiellement avec Java 7 car [non extensible à Java > 5](http://openjdk.java.net/jeps/117).
 
-Outil lancé en dehors de la compilation.
+Outil lancé en dehors de la compilation. Mirror API avec les packages com.sun.mirror.
 
 ### Pluggable Annotation Processing API
 
@@ -88,8 +98,10 @@ Intégré à la compilation.
             Elements elementUtils = processingEnv.getElementUtils();
             Messager messager = processingEnv.getMessager();
 
-            for ( TypeElement element : annotations )
-                System.out.println(element.getQualifiedName());
+            for ( TypeElement element : roundEnv.getElementsAnnotatedWith(MonAnnotation.class) )
+                processingEnv.getMessager().printMessage(
+                    Diagnostic.Kind.NOTE,
+                    element.getQualifiedName());
             return true;
         }
     }
@@ -265,6 +277,22 @@ Pour parcourir les données d'un élément, il faut soit appeler `getKind()` soi
 
 ### Le Filer
 
+[`javax.annotation.processing.Filer`](http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/Filer.html)
+
+###
+
+Créer un nouveau source java
+
+    Filer filer = processingEnv.getFiler();
+    JavaFileObject jfo = filer.createSourceFile(
+         classElement.getQualifiedName() + "Info");
+    PrintWriter pw = new PrintWriter( jfo );
+    ...
+
+###
+
+Créer une nouvelle resource
+
     Filer filer = processingEnv.getFiler();
     try {
         PrintWriter pw = new PrintWriter(filer.createResource(
@@ -275,6 +303,11 @@ Pour parcourir les données d'un élément, il faut soit appeler `getKind()` soi
     } catch (IOException ioe) {
         messager.printMessage(Kind.ERROR, ioe.getMessage());
     }
+
+### Utilisation de templates !
+
+- Velocity, ...
+- Ne générer que le minimum de code !
 
 ### Le Messager
 
@@ -303,13 +336,15 @@ http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html
 
 Action     |   Paramètres
 -----------|--------
-Désigner un processeur |  -processor *fr.lteconsulting.MyAnnotationProcessor*
+Génération des sources   | -s *répertoire*
+Désigner un processeur |  -processor *fr.lteconsulting.MyAnnotationProcessor*,*autre...*
 Spécifier un chemin de recherche   | -processorPath *le_chemin*
-Passer des options  |  -A *cle=valeur*
-TODO   |  -proc:none ou -proc:any
-TODO   | -s
+Passer des options  |  -A*cle=valeur*
+Désactiver l'AP   |  -proc:none
+Seulement l'AP    | -proc:only
 TODO   |  -sourcePath
 TODO   | -implicit:none
+TODO  | -d
 Affichage debug  |  -XprintRounds  -XprintProcessorInfo
 
 TODO autres options
@@ -326,9 +361,17 @@ Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la
 
 Packager le tout dans un jar et le tour est joué !
 
+### Packaging Maven
+
+- artefact *Annotations*,
+- artefact *Processeurs*,
+- artefacts *clients*.
+
 ## Intégration dans Eclipse
 
 Eclipse utilise son propre compilateur, JDT.
+
+![Settings Eclipse](eclipse-settings.png)
 
 Montrer aussi le messager
 
