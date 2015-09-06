@@ -36,9 +36,9 @@
 <p><span class="citation" data-cites="ltearno">@ltearno</span> www.lteconsulting.fr</p>
 <p><strong>Full stack (x86_64 to JavaScript)</strong> !</p>
 </section>
-<section><section id="objectifs" class="titleslide slide level2"><h1>Objectifs</h1></section><section id="section" class="slide level3">
+<section><section id="jsr-269" class="titleslide slide level2"><h1>JSR 269 ???</h1></section><section id="section" class="slide level3">
 <h1></h1>
-<p>Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.</p>
+<p>La JSR 269 - Pluggable Annotation Processing API permet d'exploiter les annotations présentes dans le code en s'insérant dans le processus de compilation.</p>
 <ul>
 <li>Traitement des annotations à la compilation,</li>
 <li>Génération de code,</li>
@@ -50,11 +50,11 @@
 </section></section>
 <section><section id="avantages" class="titleslide slide level2"><h1>Avantages</h1></section><section id="section-1" class="slide level3">
 <h1></h1>
-<p>Pas d'instrumentation du byte-code, donc plus simple.</p>
-<p>Pas de traitement au runtime donc pas d'impact sur les performances.</p>
 <p>Le code généré est visible.</p>
+<p>Pas de traitement au runtime donc pas d'impact sur les performances.</p>
+<p>Pas d'instrumentation du byte-code, donc plus simple.</p>
 </section></section>
-<section><section id="histoire" class="titleslide slide level2"><h1>Histoire</h1></section><section id="commentaires-javadoc" class="slide level3">
+<section><section id="brève-histoire-du-traitement-des-annotations" class="titleslide slide level2"><h1>Brève histoire du traitement des annotations</h1></section><section id="commentaires-javadoc" class="slide level3">
 <h1>Commentaires Javadoc</h1>
 <p>XDoclet</p>
 <pre><code>/****
@@ -71,19 +71,20 @@ public class MonBean { ... }</code></pre>
 </section><section id="apt" class="slide level3">
 <h1>APT</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/technotes/guides/apt/">Annotation Processing Tool</a>, retiré officiellement avec Java 7 car <a href="http://openjdk.java.net/jeps/117">non extensible à Java &gt; 5</a>.</p>
-<p>Outil lancé en dehors de la compilation. Mirror API avec les packages com.sun.mirror.</p>
+<p>Outil lancé en dehors de la compilation. L'API Mirror utilise les packages <code>com.sun.mirror</code>.</p>
 </section><section id="pluggable-annotation-processing-api" class="slide level3">
 <h1>Pluggable Annotation Processing API</h1>
 <p>Depuis 2006 (java 6) la <a href="https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html">JSR-269</a>, créé par Joe Darcy.</p>
-<p>Intégré à la compilation.</p>
+<p>Intégré à la compilation <code>javac</code>.</p>
 </section></section>
 <section><section id="principe" class="titleslide slide level2"><h1>Principe</h1></section><section id="section-2" class="slide level3">
 <h1></h1>
 <ul>
 <li>On fournit un processeur d'annotation,</li>
-<li>Le compilateur gère les <code>rounds</code> de processing,</li>
-<li>A chaque round, le processeur a accès à l'AST des classes parsées,</li>
-<li>Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au <code>round</code> suivant.</li>
+<li>Le compilateur gère des <code>rounds</code> de processing,</li>
+<li>A chaque round, les nouveaux sources sont traités (phases <em>Parse</em> et <em>Enter</em>),</li>
+<li>Les processeurs sont choisis et reçoivent l'AST des classes traitées,</li>
+<li>Les processeurs peuvent générer de nouveaux fichiers (<em>sources</em>, <em>classes</em> et <em>resources</em>) qui seront parsés et traités au <code>round</code> suivant.</li>
 </ul>
 </section></section>
 <section><section id="exemple" class="titleslide slide level2"><h1>Exemple</h1></section><section id="création-de-lannotation" class="slide level3">
@@ -118,9 +119,14 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 }</code></pre>
 </section><section id="le-fichier-spi" class="slide level3">
 <h1>Le fichier SPI</h1>
-<p>Pour packager un processeur, le plus simple est d'intégrer un fichier SPI dans son jar.</p>
+<p>Pour packager un processeur, le plus simple est d'utiliser SPI :</p>
+<p>Le fichier <code>META-INF/services/javax.annotation.processing.Processor</code> contient la liste des processeurs :</p>
+<pre><code>fr.lteconsulting.MyAnnotationProcessor</code></pre>
+<p><strong>Packager le tout dans un jar et le tour est joué !</strong></p>
 </section><section id="un-bout-de-code" class="slide level3">
 <h1>Un bout de code</h1>
+<p>Dans un autre projet on peut utiliser l'annotation et le processeur.</p>
+<p>Il suffit d'avoir le jar du processeur dans le classpath.</p>
 <pre><code>class UneClasse {
     @MonAnnotation
     void uneMethode()
@@ -369,8 +375,14 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <p>TODO autres options</p>
 <p>ATTENTION : le warning si on ne met pas <em>-implicit:none</em></p>
 <p>http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching</p>
-</section></section>
-<section><section id="découverte-des-processeurs-par-spi" class="titleslide slide level2"><h1>Découverte des processeurs par SPI</h1></section><section id="packaging-maven" class="slide level3">
+</section><section id="packaging-maven" class="slide level3">
+<h1>Packaging Maven</h1>
+<ul>
+<li>artefact <em>Annotations</em>,</li>
+<li>artefact <em>Processeurs</em>,</li>
+<li>artefacts <em>clients</em>.</li>
+</ul>
+</section><section id="packaging-maven-1" class="slide level3">
 <h1>Packaging Maven</h1>
 <ul>
 <li>artefact <em>Annotations</em>,</li>

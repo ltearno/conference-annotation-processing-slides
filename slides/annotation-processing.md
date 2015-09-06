@@ -12,10 +12,10 @@ Speaker **Devoxx**, **GWT.create**, **Paris**/**Toulouse JUG**, etc...
 
 **Full stack (x86_64 to JavaScript)** !
 
-## Objectifs
+## JSR 269 ???
 ###
 
-Pluggable Annotation Processing API permet de s'inscrire dans le processus de compilation Java en exploitant les annotations présentes dans le code.
+La JSR 269 - Pluggable Annotation Processing API permet d'exploiter les annotations présentes dans le code en s'insérant dans le processus de compilation.
 
 - Traitement des annotations à la compilation,
 - Génération de code,
@@ -28,13 +28,13 @@ On ne modifie pas les sources existants !
 ## Avantages
 ###
 
-Pas d'instrumentation du byte-code, donc plus simple.
+Le code généré est visible.
 
 Pas de traitement au runtime donc pas d'impact sur les performances.
 
-Le code généré est visible.
+Pas d'instrumentation du byte-code, donc plus simple.
 
-## Histoire
+## Brève histoire du traitement des annotations
 
 ### Commentaires Javadoc
 
@@ -52,26 +52,26 @@ XDoclet
     */
     public class MonBean { ... }
 
-
 ### APT
 
 [Annotation Processing Tool](http://docs.oracle.com/javase/7/docs/technotes/guides/apt/), retiré officiellement avec Java 7 car [non extensible à Java > 5](http://openjdk.java.net/jeps/117).
 
-Outil lancé en dehors de la compilation. Mirror API avec les packages com.sun.mirror.
+Outil lancé en dehors de la compilation. L'API Mirror utilise les packages `com.sun.mirror`.
 
 ### Pluggable Annotation Processing API
 
 Depuis 2006 (java 6) la [JSR-269](https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html), créé par Joe Darcy.
 
-Intégré à la compilation.
+Intégré à la compilation `javac`.
 
 ## Principe
 ###
 
 - On fournit un processeur d'annotation,
-- Le compilateur gère les `rounds` de processing,
-- A chaque round, le processeur a accès à l'AST des classes parsées,
-- Le processeur peut générer de nouveaux fichiers Java qui seront parsés et traités au `round` suivant.
+- Le compilateur gère des `rounds` de processing,
+- A chaque round, les nouveaux sources sont traités (phases *Parse* et *Enter*),
+- Les processeurs sont choisis et reçoivent l'AST des classes traitées,
+- Les processeurs peuvent générer de nouveaux fichiers (*sources*, *classes* et *resources*) qui seront parsés et traités au `round` suivant.
 
 ## Exemple
 
@@ -109,9 +109,19 @@ Intégré à la compilation.
 
 ### Le fichier SPI
 
-Pour packager un processeur, le plus simple est d'intégrer un fichier SPI dans son jar.
+Pour packager un processeur, le plus simple est d'utiliser SPI :
+
+Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la liste des processeurs :
+
+    fr.lteconsulting.MyAnnotationProcessor
+
+**Packager le tout dans un jar et le tour est joué !**
 
 ### Un bout de code
+
+Dans un autre projet on peut utiliser l'annotation et le processeur.
+
+Il suffit d'avoir le jar du processeur dans le classpath.
 
     class UneClasse {
         @MonAnnotation
@@ -353,13 +363,11 @@ ATTENTION : le warning si on ne met pas *-implicit:none*
 
 http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
 
-## Découverte des processeurs par SPI
+### Packaging Maven
 
-Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la liste des processeurs :
-
-    fr.lteconsulting.MyAnnotationProcessor
-
-Packager le tout dans un jar et le tour est joué !
+- artefact *Annotations*,
+- artefact *Processeurs*,
+- artefacts *clients*.
 
 ### Packaging Maven
 
