@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="reveal.js/css/reveal.min.css"/>
+  <link rel="stylesheet" href="reveal.js/css/reveal.css"/>
     <style type="text/css">code{white-space: pre;}</style>
     <link rel="stylesheet" href="reveal.js/css/theme/beige.css"/>
 
@@ -66,7 +66,8 @@
 *     primkey-field=&quot;id&quot;
 *     schema = &quot;Customers&quot;
 * ...
-*/</code></pre>
+*/
+public class MonBean { ... }</code></pre>
 </section><section id="apt" class="slide level3">
 <h1>APT</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/technotes/guides/apt/">Annotation Processing Tool</a>, retiré officiellement avec Java 7 car <a href="http://openjdk.java.net/jeps/117">non extensible à Java &gt; 5</a>.</p>
@@ -377,13 +378,50 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <li>artefacts <em>clients</em>.</li>
 </ul>
 </section></section>
-<section><section id="intégration-dans-eclipse" class="titleslide slide level2"><h1>Intégration dans Eclipse</h1></section></section>
-<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section></section>
-<section><section id="au-delà-des-limitations" class="titleslide slide level2"><h1>Au delà des limitations</h1></section></section>
+<section><section id="intégration-dans-eclipse" class="titleslide slide level2"><h1>Intégration dans Eclipse</h1></section><section id="section-6" class="slide level3">
+<h1></h1>
+<p>Eclipse utilise son propre compilateur, JDT.</p>
+<figure>
+<img src="eclipse-settings.png" alt="Settings Eclipse" /><figcaption>Settings Eclipse</figcaption>
+</figure>
+<p>Montrer aussi le messager</p>
+<p>Il faut configurer le projet ou utiliser m2e, ou autre...</p>
+</section></section>
+<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section><section id="section-7" class="slide level3">
+<h1></h1>
+<ul>
+<li>Pas possible de modifier des classes existantes</li>
+<li>Certains bug ne permettent pas de traiter correctement les génériques</li>
+</ul>
+</section><section id="hacking-au-delà" class="slide level3">
+<h1>Hacking au delà</h1>
+<ul>
+<li>Lombok : quelques hack pour accéder à l'implémentation (javac de sun et jdt) et modifier l'AST</li>
+<li>Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques</li>
+</ul>
+</section></section>
 <section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section></section>
-<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section></section>
-<section><section id="lombok" class="titleslide slide level2"><h1>Lombok</h1></section></section>
-<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section></section>
+<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-8" class="slide level3">
+<h1></h1>
+<ul>
+<li>Dagger,</li>
+<li>Google Auto,</li>
+<li>Immutables,</li>
+<li>Hexa Binding,</li>
+<li>Lombok,</li>
+<li>GWT,</li>
+<li>JPA model generation (JSR-317)</li>
+</ul>
+</section><section id="lombok" class="slide level3">
+<h1>Lombok</h1>
+<ul>
+<li>http://stackoverflow.com/questions/6107197/how-does-lombok-work</li>
+</ul>
+</section></section>
+<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-9" class="slide level3">
+<h1></h1>
+<p><a href="http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8">JM Doudoux</a></p>
+</section></section>
 <section><section id="pas-traités..." class="titleslide slide level2"><h1>Pas traités...</h1></section></section>
 <section><section id="email-eugene-lucas-immutables" class="titleslide slide level2"><h1>email Eugene Lucas (Immutables)</h1></section></section>
 <section><section id="email-question-m.-gruber-dagger" class="titleslide slide level2"><h1>email question M. Gruber (Dagger)</h1></section></section>
@@ -391,7 +429,7 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
   </div>
 
   <script src="reveal.js/lib/js/head.min.js"></script>
-  <script src="reveal.js/js/reveal.min.js"></script>
+  <script src="reveal.js/js/reveal.js"></script>
 
   <script>
 

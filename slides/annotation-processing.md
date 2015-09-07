@@ -50,6 +50,7 @@ XDoclet
     *     schema = "Customers"
     * ...
     */
+    public class MonBean { ... }
 
 
 ### APT
@@ -139,7 +140,6 @@ TODO dire où sont générés les classes générées
 - http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
 
 ## Fonctionnement
-
 ###
 
 A chaque round, le processeur doit traiter les classes générées au round précédent. S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).
@@ -368,6 +368,7 @@ Packager le tout dans un jar et le tour est joué !
 - artefacts *clients*.
 
 ## Intégration dans Eclipse
+###
 
 Eclipse utilise son propre compilateur, JDT.
 
@@ -378,11 +379,12 @@ Montrer aussi le messager
 Il faut configurer le projet ou utiliser m2e, ou autre...
 
 ## Limitations
+###
 
 - Pas possible de modifier des classes existantes
 - Certains bug ne permettent pas de traiter correctement les génériques
 
-## Au delà des limitations
+### Hacking au delà
 
 - Lombok : quelques hack pour accéder à l'implémentation (javac de sun et jdt) et modifier l'AST
 - Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques
@@ -390,6 +392,7 @@ Il faut configurer le projet ou utiliser m2e, ou autre...
 ## Tests unitaires
 
 ## Utilisations
+###
 
 - Dagger,
 - Google Auto,
@@ -399,11 +402,12 @@ Il faut configurer le projet ou utiliser m2e, ou autre...
 - GWT,
 - JPA model generation (JSR-317)
 
-## Lombok
+### Lombok
 
 - http://stackoverflow.com/questions/6107197/how-does-lombok-work
 
 ## Liens
+###
 
 [JM Doudoux](http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8)
 
