@@ -399,6 +399,61 @@ Il faut configurer le projet ou utiliser m2e, ou autre...
 
 ## Tests unitaires
 
+### Exemple
+
+```java
+JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+// JDK Sun : task peut être casté en com.sun.source.util.JavacTask
+CompilationTask task = compiler.getTask(
+    null,                   // Default log (stderr)
+    fileManager,            // (InMemory)JavaFileManager
+    diagnosticCollector,    // DiagnosticCollector
+    options,                // Set<String>
+    new HashSet<String>(),  // Classes pour annotation processing
+    sources);               // Iterable<? extends JavaFileObject>
+
+// Force les processeurs
+task.setProcessors(processors);
+
+boolean successful = task.call();
+diagnosticCollector.getDiagnostics();
+fileManager.getOutputFiles();
+```
+
+### Bibliothèque de test
+
+[Compile-Testing](https://github.com/google/compile-testing)
+
+###
+
+Test positif
+
+```java
+assert_().about(javaSource())
+   .that(JavaFileObjects.forResource("HelloWorld.java"))
+   .processedWith(new MyAnnotationProcessor())
+   .compilesWithoutError()
+   .and()
+   .generatesSources(JavaFileObjects.forResource("GeneratedHelloWorld.java"));
+```
+
+###
+
+et négatif
+
+```java
+JavaFileObject fileObject = JavaFileObjects.forResource("HelloWorld.java");
+assert_().about(javaSource())
+    .that(fileObject)
+    .processedWith(new NoHelloWorld())
+    .failsToCompile()
+    .withErrorContaining("No types named HelloWorld!")
+    .in(fileObject)
+    .onLine(23)
+    .atColumn(5);
+```
+
 ## Utilisations
 ###
 

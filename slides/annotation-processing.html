@@ -412,8 +412,51 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <li>Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques</li>
 </ul>
 </section></section>
-<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section></section>
-<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-8" class="slide level3">
+<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section><section id="exemple-1" class="slide level3">
+<h1>Exemple</h1>
+<pre class="java"><code>JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+// JDK Sun : task peut être casté en com.sun.source.util.JavacTask
+CompilationTask task = compiler.getTask(
+    null,                   // Default log (stderr)
+    fileManager,            // (InMemory)JavaFileManager
+    diagnosticCollector,    // DiagnosticCollector
+    options,                // Set&lt;String&gt;
+    new HashSet&lt;String&gt;(),  // Classes pour annotation processing
+    sources);               // Iterable&lt;? extends JavaFileObject&gt;
+
+// Force les processeurs
+task.setProcessors(processors);
+
+boolean successful = task.call();
+diagnosticCollector.getDiagnostics();
+fileManager.getOutputFiles();</code></pre>
+</section><section id="bibliothèque-de-test" class="slide level3">
+<h1>Bibliothèque de test</h1>
+<p><a href="https://github.com/google/compile-testing">Compile-Testing</a></p>
+</section><section id="section-8" class="slide level3">
+<h1></h1>
+<p>Test positif</p>
+<pre class="java"><code>assert_().about(javaSource())
+   .that(JavaFileObjects.forResource(&quot;HelloWorld.java&quot;))
+   .processedWith(new MyAnnotationProcessor())
+   .compilesWithoutError()
+   .and()
+   .generatesSources(JavaFileObjects.forResource(&quot;GeneratedHelloWorld.java&quot;));</code></pre>
+</section><section id="section-9" class="slide level3">
+<h1></h1>
+<p>et négatif</p>
+<pre class="java"><code>JavaFileObject fileObject = JavaFileObjects.forResource(&quot;HelloWorld.java&quot;);
+assert_().about(javaSource())
+    .that(fileObject)
+    .processedWith(new NoHelloWorld())
+    .failsToCompile()
+    .withErrorContaining(&quot;No types named HelloWorld!&quot;)
+    .in(fileObject)
+    .onLine(23)
+    .atColumn(5);</code></pre>
+</section></section>
+<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-10" class="slide level3">
 <h1></h1>
 <ul>
 <li>Dagger,</li>
@@ -430,7 +473,7 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <li>http://stackoverflow.com/questions/6107197/how-does-lombok-work</li>
 </ul>
 </section></section>
-<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-9" class="slide level3">
+<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-11" class="slide level3">
 <h1></h1>
 <p><a href="http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8">JM Doudoux</a></p>
 </section></section>
