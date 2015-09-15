@@ -386,6 +386,8 @@ Montrer aussi le messager
 
 Il faut configurer le projet ou utiliser m2e, ou autre...
 
+ATTENTION ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.
+
 ## Limitations
 ###
 
