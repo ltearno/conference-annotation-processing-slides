@@ -75,7 +75,7 @@ Intégré à la compilation `javac`.
 - Les processeurs sont choisis et reçoivent l'AST des classes traitées,
 - Les processeurs peuvent générer de nouveaux fichiers (*sources*, *classes* et *resources*) qui seront parsés et traités au `round` suivant.
 
-## Exemple
+## Utilisation
 
 ### Création de l'annotation
 
@@ -111,13 +111,13 @@ Intégré à la compilation `javac`.
 
 ### Le fichier SPI
 
-Pour packager un processeur, le plus simple est d'utiliser SPI :
+Pour packager et activer un processeur, le plus simple est d'utiliser SPI :
 
 Le fichier `META-INF/services/javax.annotation.processing.Processor` contient la liste des processeurs :
 
     fr.lteconsulting.MyAnnotationProcessor
 
-**Packager le tout dans un jar et le tour est joué !**
+**Packager le tout dans un jar**
 
 ### Un bout de code
 
@@ -147,18 +147,16 @@ TODO dire où sont générés les classes générées
 
     fr.lteconsulting.UneClasse.uneMethode()
 
-### Exemples en ligne
-
-- http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor
-
 ## Fonctionnement
 ###
 
-A chaque round, le processeur doit traiter les classes générées au round précédent. S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).
+A chaque round, le processeur doit traiter les classes générées au round précédent.
+
+S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).
 
 ### Découverte des processeurs
 
-Les proceseurs sont découverts par le compilateur. `JavaCompiler` fournit des options pour controller l'ensemble des processeurs disponibles :
+Les proceseurs sont découverts par le compilateur. `JavaCompiler` fournit des options pour contrôler l'ensemble des processeurs disponibles :
 
 - une liste prédéfinie,
 - un chemin de recherche,
@@ -181,7 +179,7 @@ Appel des processeurs en fonction :
 
 ### A chaque round
 
-- javac calcule l'ensemble des annotations sur les classes en cours,
+- `javac` calcule l'ensemble des annotations sur les classes en cours,
 - si au moins une annotation est présente, au fur et à mesure que les processeurs les *claime*, elles sont retirées des annotations non *matchées*.
 - quand l'ensemble est vide ou qu'il n'y a plus de processeur candidat, le round est fini.
 - si aucune annotation n'est présente, seuls les processeurs *universels* ("*") sont appelés, et reçoivent un ensemble vide.
@@ -219,8 +217,6 @@ Appel des processeurs en fonction :
 
     // Affichage utilisateur
     Messager getMessager();
-
-TODO : décrire ces choses
 
 ### getSupportedAnnotationTypes
 
@@ -318,8 +314,8 @@ Créer une nouvelle resource
 
 ### Utilisation de templates !
 
-- Velocity, ...
 - Ne générer que le minimum de code !
+- Velocity, ...
 
 ### Le Messager
 
@@ -330,7 +326,7 @@ Créer une nouvelle resource
     error: Cette classe n'a pas de champ ID : fr.lteconsulting.Data
     1 error
 
-MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE
+TODO MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE
 
 ## La compilation Java
 
@@ -365,36 +361,31 @@ ATTENTION : le warning si on ne met pas *-implicit:none*
 
 http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching
 
-### Packaging Maven
+## Intégration avec Eclipse
 
-- artefact *Annotations*,
-- artefact *Processeurs*,
-- artefacts *clients*.
-
-### Packaging Maven
-
-- artefact *Annotations*,
-- artefact *Processeurs*,
-- artefacts *clients*.
-
-## Intégration dans Eclipse
-###
+### Configuration
 
 Eclipse utilise son propre compilateur, JDT.
 
-![Settings Eclipse](eclipse-settings.png)
+*Configuration possible du projet par m2e*
 
-Montrer aussi le messager
+<img src="eclipse-settings.png" style="height:40%;">
 
-Il faut configurer le projet ou utiliser m2e, ou autre...
+### Utilisation
 
-ATTENTION ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.
+Montrer le messager
+
+Montrer la génération en dynamique
+
+**ATTENTION** ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.
 
 ## Limitations
 ###
 
+- Pas d'accès à l'AST complet (corps des méthodes par exemple)
 - Pas possible de modifier des classes existantes
 - Certains bug ne permettent pas de traiter correctement les génériques
+- Les IDE ne surveillent que les éléments annotés pour redéclencher le processing
 
 ### Hacking au delà
 
@@ -478,11 +469,17 @@ assert_().about(javaSource())
 
 [JM Doudoux](http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8)
 
+[Coders Breakfast](http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor)
 
 
+## Merci !
+### Merci !
 
+Rendez-vous sur [https://github.com/ltearno/annotation-processing](https://github.com/ltearno/annotation-processing)
 
+Twitter : `@ltearno`
 
+(c) LTE Consulting
 
 
 
