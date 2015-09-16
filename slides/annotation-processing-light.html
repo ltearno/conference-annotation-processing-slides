@@ -88,7 +88,7 @@ public class MonBean { ... }</code></pre>
 <li>Les processeurs peuvent générer de nouveaux fichiers (<em>sources</em>, <em>classes</em> et <em>resources</em>) qui seront parsés et traités au <code>round</code> suivant.</li>
 </ul>
 </section></section>
-<section><section id="exemple" class="titleslide slide level2"><h1>Exemple</h1></section><section id="création-de-lannotation" class="slide level3">
+<section><section id="utilisation" class="titleslide slide level2"><h1>Utilisation</h1></section><section id="création-de-lannotation" class="slide level3">
 <h1>Création de l'annotation</h1>
 <pre><code>import java.lang.annotation.*;
 
@@ -120,10 +120,10 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 }</code></pre>
 </section><section id="le-fichier-spi" class="slide level3">
 <h1>Le fichier SPI</h1>
-<p>Pour packager un processeur, le plus simple est d'utiliser SPI :</p>
+<p>Pour packager et activer un processeur, le plus simple est d'utiliser SPI :</p>
 <p>Le fichier <code>META-INF/services/javax.annotation.processing.Processor</code> contient la liste des processeurs :</p>
 <pre><code>fr.lteconsulting.MyAnnotationProcessor</code></pre>
-<p><strong>Packager le tout dans un jar et le tour est joué !</strong></p>
+<p><strong>Packager le tout dans un jar</strong></p>
 </section><section id="un-bout-de-code" class="slide level3">
 <h1>Un bout de code</h1>
 <p>Dans un autre projet on peut utiliser l'annotation et le processeur.</p>
@@ -144,18 +144,14 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 </section><section id="sortie-de-notre-exemple" class="slide level3">
 <h1>Sortie de notre exemple</h1>
 <pre><code>fr.lteconsulting.UneClasse.uneMethode()</code></pre>
-</section><section id="exemples-en-ligne" class="slide level3">
-<h1>Exemples en ligne</h1>
-<ul>
-<li>http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor</li>
-</ul>
 </section></section>
 <section><section id="fonctionnement" class="titleslide slide level2"><h1>Fonctionnement</h1></section><section id="section-3" class="slide level3">
 <h1></h1>
-<p>A chaque round, le processeur doit traiter les classes générées au round précédent. S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).</p>
+<p>A chaque round, le processeur doit traiter les classes générées au round précédent.</p>
+<p>S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).</p>
 </section><section id="découverte-des-processeurs" class="slide level3">
 <h1>Découverte des processeurs</h1>
-<p>Les proceseurs sont découverts par le compilateur. <code>JavaCompiler</code> fournit des options pour controller l'ensemble des processeurs disponibles :</p>
+<p>Les proceseurs sont découverts par le compilateur. <code>JavaCompiler</code> fournit des options pour contrôler l'ensemble des processeurs disponibles :</p>
 <ul>
 <li>une liste prédéfinie,</li>
 <li>un chemin de recherche,</li>
@@ -180,7 +176,7 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 </section><section id="a-chaque-round" class="slide level3">
 <h1>A chaque round</h1>
 <ul>
-<li>javac calcule l'ensemble des annotations sur les classes en cours,</li>
+<li><code>javac</code> calcule l'ensemble des annotations sur les classes en cours,</li>
 <li>si au moins une annotation est présente, au fur et à mesure que les processeurs les <em>claime</em>, elles sont retirées des annotations non <em>matchées</em>.</li>
 <li>quand l'ensemble est vide ou qu'il n'y a plus de processeur candidat, le round est fini.</li>
 <li>si aucune annotation n'est présente, seuls les processeurs <em>universels</em> (&quot;*&quot;) sont appelés, et reçoivent un ensemble vide.</li>
@@ -216,7 +212,6 @@ Filer getFiler();
 
 // Affichage utilisateur
 Messager getMessager();</code></pre>
-<p>TODO : décrire ces choses</p>
 </section><section id="getsupportedannotationtypes" class="slide level3">
 <h1>getSupportedAnnotationTypes</h1>
 <ul>
@@ -297,8 +292,8 @@ try {
 </section><section id="utilisation-de-templates" class="slide level3">
 <h1>Utilisation de templates !</h1>
 <ul>
-<li>Velocity, ...</li>
 <li>Ne générer que le minimum de code !</li>
+<li>Velocity, ...</li>
 </ul>
 </section><section id="le-messager" class="slide level3">
 <h1>Le Messager</h1>
@@ -308,7 +303,7 @@ try {
 // sortie :
 error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 1 error</code></pre>
-<p>MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE</p>
+<p>TODO MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE</p>
 </section></section>
 <section><section id="la-compilation-java" class="titleslide slide level2"><h1>La compilation Java</h1></section><section id="phases" class="slide level3">
 <h1>3 phases</h1>
@@ -376,34 +371,22 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <p>TODO autres options</p>
 <p>ATTENTION : le warning si on ne met pas <em>-implicit:none</em></p>
 <p>http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching</p>
-</section><section id="packaging-maven" class="slide level3">
-<h1>Packaging Maven</h1>
-<ul>
-<li>artefact <em>Annotations</em>,</li>
-<li>artefact <em>Processeurs</em>,</li>
-<li>artefacts <em>clients</em>.</li>
-</ul>
-</section><section id="packaging-maven-1" class="slide level3">
-<h1>Packaging Maven</h1>
-<ul>
-<li>artefact <em>Annotations</em>,</li>
-<li>artefact <em>Processeurs</em>,</li>
-<li>artefacts <em>clients</em>.</li>
-</ul>
 </section></section>
-<section><section id="intégration-dans-eclipse" class="titleslide slide level2"><h1>Intégration dans Eclipse</h1></section><section id="section-6" class="slide level3">
-<h1></h1>
+<section><section id="intégration-avec-eclipse" class="titleslide slide level2"><h1>Intégration avec Eclipse</h1></section><section id="configuration" class="slide level3">
+<h1>Configuration</h1>
 <p>Eclipse utilise son propre compilateur, JDT.</p>
-<figure>
-<img src="eclipse-settings.png" alt="Settings Eclipse" /><figcaption>Settings Eclipse</figcaption>
-</figure>
-<p>Montrer aussi le messager</p>
-<p>Il faut configurer le projet ou utiliser m2e, ou autre...</p>
-<p>ATTENTION ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.</p>
+<p><em>Configuration possible du projet par m2e</em></p>
+<p><img src="eclipse-settings.png" style="height:40%;"></p>
+</section><section id="utilisation-1" class="slide level3">
+<h1>Utilisation</h1>
+<p>Montrer le messager</p>
+<p>Montrer la génération en dynamique</p>
+<p><strong>ATTENTION</strong> ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.</p>
 </section></section>
-<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section><section id="section-7" class="slide level3">
+<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section><section id="section-6" class="slide level3">
 <h1></h1>
 <ul>
+<li>Pas d'accès à l'AST complet (corps des méthodes par exemple)</li>
 <li>Pas possible de modifier des classes existantes</li>
 <li>Certains bug ne permettent pas de traiter correctement les génériques</li>
 </ul>
@@ -414,7 +397,7 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <li>Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques</li>
 </ul>
 </section></section>
-<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section><section id="exemple-1" class="slide level3">
+<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section><section id="exemple" class="slide level3">
 <h1>Exemple</h1>
 <pre class="java"><code>JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
@@ -436,7 +419,7 @@ fileManager.getOutputFiles();</code></pre>
 </section><section id="bibliothèque-de-test" class="slide level3">
 <h1>Bibliothèque de test</h1>
 <p><a href="https://github.com/google/compile-testing">Compile-Testing</a></p>
-</section><section id="section-8" class="slide level3">
+</section><section id="section-7" class="slide level3">
 <h1></h1>
 <p>Test positif</p>
 <pre class="java"><code>assert_().about(javaSource())
@@ -445,7 +428,7 @@ fileManager.getOutputFiles();</code></pre>
    .compilesWithoutError()
    .and()
    .generatesSources(JavaFileObjects.forResource(&quot;GeneratedHelloWorld.java&quot;));</code></pre>
-</section><section id="section-9" class="slide level3">
+</section><section id="section-8" class="slide level3">
 <h1></h1>
 <p>et négatif</p>
 <pre class="java"><code>JavaFileObject fileObject = JavaFileObjects.forResource(&quot;HelloWorld.java&quot;);
@@ -458,7 +441,7 @@ assert_().about(javaSource())
     .onLine(23)
     .atColumn(5);</code></pre>
 </section></section>
-<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-10" class="slide level3">
+<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-9" class="slide level3">
 <h1></h1>
 <ul>
 <li>Dagger,</li>
@@ -475,9 +458,18 @@ assert_().about(javaSource())
 <li>http://stackoverflow.com/questions/6107197/how-does-lombok-work</li>
 </ul>
 </section></section>
-<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-11" class="slide level3">
+<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-10" class="slide level3">
 <h1></h1>
 <p><a href="http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8">JM Doudoux</a></p>
+<p><a href="http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor">Coders Breakfast</a></p>
+</section></section>
+<section><section id="merci" class="titleslide slide level2"><h1>Merci !</h1></section><section id="merci-1" class="slide level3">
+<h1>Merci !</h1>
+<p>Rendez-vous sur <a href="https://github.com/ltearno/annotation-processing" class="uri">https://github.com/ltearno/annotation-processing</a></p>
+<p>Twitter : <code>@ltearno</code></p>
+<ol start="3" type="a">
+<li>LTE Consulting</li>
+</ol>
 </section></section>
 <section><section id="pas-traités..." class="titleslide slide level2"><h1>Pas traités...</h1></section></section>
 <section><section id="email-eugene-lucas-immutables" class="titleslide slide level2"><h1>email Eugene Lucas (Immutables)</h1></section></section>
