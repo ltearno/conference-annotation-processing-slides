@@ -1,0 +1,43 @@
+Processing round, processingOver : false, errorRaised : false
+ELEMENT ANNOTATED WITH fr.lteconsulting.jsr69.MonAnnotation
+visiting element 'MaPetiteClasse'
+type : nesting kind TOP_LEVEL, qualified name : fr.lteconsulting.jsr269.MaPetiteClasse, superclass : java.lang.Object
+interfaces : 
+TypeMirror : java.lang.Runnable, kind : DECLARED
+type parameters : 
+visiting element's children
+    visiting element '<init>'
+    executable : isVarargs : false, isDefault : false, default value : null
+    type parameters : 
+    return type : 
+    TypeMirror : void, kind : VOID
+    parameters : 
+    receiver type : 
+    TypeMirror : null, kind : null
+    thrown types
+    visiting element 'method1'
+    executable : isVarargs : false, isDefault : false, default value : null
+    type parameters : 
+    return type : 
+    TypeMirror : void, kind : VOID
+    parameters : 
+    visiting element 'toto'
+    variable toto = null
+    visiting element 'value'
+    variable value = null
+    receiver type : 
+    TypeMirror : null, kind : null
+    thrown types
+    visiting element 'run'
+    executable : isVarargs : false, isDefault : false, default value : null
+    type parameters : 
+    return type : 
+    TypeMirror : void, kind : VOID
+    parameters : 
+    receiver type : 
+    TypeMirror : null, kind : null
+    thrown types
+visiting element's children
+    ! already visited element <init>
+    ! already visited element method1
+    ! already visited element run
