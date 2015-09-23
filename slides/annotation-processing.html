@@ -37,14 +37,21 @@
 <p>Développement - Formation - Conseil</p>
 <p><strong>Full stack (x86_64 to JavaScript)</strong> !</p>
 </section>
-<section><section id="jsr-269" class="titleslide slide level2"><h1>JSR 269 ???</h1></section><section id="section" class="slide level3">
+<section id="avant-tout" class="slide level3">
+<h1>Avant tout</h1>
+<p>Cette présentation est disponible sur <a href="https://github.com/ltearno/annotation-processing">github.com/ltearno/annotation-processing</a></p>
+<p>Des hyper-liens sont présents</p>
+</section>
+<section><section id="jsr-269" class="titleslide slide level2"><h1>JSR 269 ???</h1></section></section>
+<section><section id="pluggable-annotation-processing-api..." class="titleslide slide level2"><h1>Pluggable Annotation Processing API...</h1></section><section id="section" class="slide level3">
 <h1></h1>
-<p>La JSR 269 - Pluggable Annotation Processing API permet d'exploiter les annotations présentes dans le code en s'insérant dans le processus de compilation.</p>
+<p>La JSR 269 - Pluggable Annotation Processing API permet d'exploiter les annotations présentes dans le code en s'insérant dans le processus de compilation, et de générer de nouvelles sources.</p>
 <ul>
 <li>Traitement des annotations à la compilation,</li>
 <li>Génération de code,</li>
 <li>Génération de fichiers de configuration,</li>
-<li>Vérifications,</li>
+<li>Documentation, Cartographie,</li>
+<li>Vérifications, Build breakers,</li>
 <li>etc...</li>
 </ul>
 <p>On ne modifie pas les sources existants !</p>
@@ -72,10 +79,11 @@ public class MonBean { ... }</code></pre>
 </section><section id="apt" class="slide level3">
 <h1>APT</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/technotes/guides/apt/">Annotation Processing Tool</a>, retiré officiellement avec Java 7 car <a href="http://openjdk.java.net/jeps/117">non extensible à Java &gt; 5</a>.</p>
-<p>Outil lancé en dehors de la compilation. L'API Mirror utilise les packages <code>com.sun.mirror</code>.</p>
+<p>Outil lancé en dehors de la compilation.</p>
+<p>L'API Mirror utilise les packages <code>com.sun.mirror</code>.</p>
 </section><section id="pluggable-annotation-processing-api" class="slide level3">
 <h1>Pluggable Annotation Processing API</h1>
-<p>Depuis 2006 (java 6) la <a href="https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html">JSR-269</a>, créé par Joe Darcy.</p>
+<p>Depuis 2006 (Java 6) la <a href="https://jcp.org/aboutJava/communityprocess/final/jsr269/index.html">JSR-269</a>, créé par Joe Darcy.</p>
 <p>Intégré à la compilation <code>javac</code>.</p>
 </section></section>
 <section><section id="principe" class="titleslide slide level2"><h1>Principe</h1></section><section id="section-2" class="slide level3">
@@ -88,7 +96,7 @@ public class MonBean { ... }</code></pre>
 <li>Les processeurs peuvent générer de nouveaux fichiers (<em>sources</em>, <em>classes</em> et <em>resources</em>) qui seront parsés et traités au <code>round</code> suivant.</li>
 </ul>
 </section></section>
-<section><section id="exemple" class="titleslide slide level2"><h1>Exemple</h1></section><section id="création-de-lannotation" class="slide level3">
+<section><section id="utilisation" class="titleslide slide level2"><h1>Utilisation</h1></section><section id="création-de-lannotation" class="slide level3">
 <h1>Création de l'annotation</h1>
 <pre><code>import java.lang.annotation.*;
 
@@ -120,14 +128,13 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 }</code></pre>
 </section><section id="le-fichier-spi" class="slide level3">
 <h1>Le fichier SPI</h1>
-<p>Pour packager un processeur, le plus simple est d'utiliser SPI :</p>
+<p>Pour packager et activer un processeur, le plus simple est d'utiliser SPI :</p>
 <p>Le fichier <code>META-INF/services/javax.annotation.processing.Processor</code> contient la liste des processeurs :</p>
 <pre><code>fr.lteconsulting.MyAnnotationProcessor</code></pre>
-<p><strong>Packager le tout dans un jar et le tour est joué !</strong></p>
+<p><strong>Packager le tout dans un jar</strong></p>
 </section><section id="un-bout-de-code" class="slide level3">
 <h1>Un bout de code</h1>
 <p>Dans un autre projet on peut utiliser l'annotation et le processeur.</p>
-<p>Il suffit d'avoir le jar du processeur dans le classpath.</p>
 <pre><code>class UneClasse {
     @MonAnnotation
     void uneMethode()
@@ -138,24 +145,20 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 </section><section id="packaging-et-compilation" class="slide level3">
 <h1>Packaging et compilation</h1>
 <p>Le processeur et le fichier SPI sont dans un jar.</p>
-<p>Ce jar est dans le class path au moment de la compilation.</p>
+<p>Ce jar est dans le class path au moment de la compilation de <code>UneClasse.java</code>.</p>
 <p>C'est tout !</p>
-<p>TODO dire où sont générés les classes générées</p>
 </section><section id="sortie-de-notre-exemple" class="slide level3">
 <h1>Sortie de notre exemple</h1>
-<pre><code>fr.lteconsulting.UneClasse.uneMethode()</code></pre>
-</section><section id="exemples-en-ligne" class="slide level3">
-<h1>Exemples en ligne</h1>
-<ul>
-<li>http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor</li>
-</ul>
+<pre><code>At line 90 of UneClasse.java :
+fr.lteconsulting.UneClasse.uneMethode()</code></pre>
 </section></section>
 <section><section id="fonctionnement" class="titleslide slide level2"><h1>Fonctionnement</h1></section><section id="section-3" class="slide level3">
 <h1></h1>
-<p>A chaque round, le processeur doit traiter les classes générées au round précédent. S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).</p>
+<p>A chaque round, le processeur doit traiter les classes générées au round précédent.</p>
+<p>S'il est appelé au premier round, il le sera pour les autres, jusqu'au dernier round (même si aucune annotation n'est présente pour lui).</p>
 </section><section id="découverte-des-processeurs" class="slide level3">
 <h1>Découverte des processeurs</h1>
-<p>Les proceseurs sont découverts par le compilateur. <code>JavaCompiler</code> fournit des options pour controller l'ensemble des processeurs disponibles :</p>
+<p>Les proceseurs sont découverts par le compilateur. <code>JavaCompiler</code> fournit des options pour contrôler l'ensemble des processeurs disponibles :</p>
 <ul>
 <li>une liste prédéfinie,</li>
 <li>un chemin de recherche,</li>
@@ -166,7 +169,7 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 <p>Appel des processeurs en fonction :</p>
 <ul>
 <li>des annotations présentes dans les classes traitées,</li>
-<li>les annotations supportées par tel processeur,</li>
+<li>les annotations supportées par les processeurs,</li>
 <li>le fait qu'un processeur ait <em>claimé</em> une annotation.</li>
 </ul>
 </section><section id="cycle-de-vie-du-processeur" class="slide level3">
@@ -180,10 +183,10 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 </section><section id="a-chaque-round" class="slide level3">
 <h1>A chaque round</h1>
 <ul>
-<li>javac calcule l'ensemble des annotations sur les classes en cours,</li>
+<li><code>javac</code> calcule l'ensemble des annotations sur les classes en cours,</li>
 <li>si au moins une annotation est présente, au fur et à mesure que les processeurs les <em>claime</em>, elles sont retirées des annotations non <em>matchées</em>.</li>
 <li>quand l'ensemble est vide ou qu'il n'y a plus de processeur candidat, le round est fini.</li>
-<li>si aucune annotation n'est présente, seuls les processeurs <em>universels</em> (&quot;*&quot;) sont appelés, et reçoivent un ensemble vide.</li>
+<li>si aucune annotation n'est présente, seuls les processeurs <em>universels</em> (&quot;*&quot;) sont appelés, et reçoivent un ensemble vide de classes à traiter.</li>
 </ul>
 </section><section id="précautions" class="slide level3">
 <h1>Précautions !</h1>
@@ -195,12 +198,14 @@ public class MonAnnotationProcessor extends AbstractProcessor  {
 </section><section id="linterface-processor" class="slide level3">
 <h1>L'interface Processor</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/Processor.html"><code>javax.annotation.processing.Processor</code></a></p>
-<pre><code>void init( ProcessingEnvironment processingEnv );
+<pre class="java"><code>interface Processor {
+    void init( ProcessingEnvironment processingEnv );
 
-Set&lt;String&gt; getSupportedAnnotationTypes();
+    Set&lt;String&gt; getSupportedAnnotationTypes();
 
-boolean process(    Set&lt;? extends TypeElement&gt; annotations,
-                    RoundEnvironment roundEnv );</code></pre>
+    boolean process(    Set&lt;? extends TypeElement&gt; annotations,
+                        RoundEnvironment roundEnv );
+}</code></pre>
 </section><section id="processingenvironment" class="slide level3">
 <h1>ProcessingEnvironment</h1>
 <p><a href="http://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/ProcessingEnvironment.html"><code>javax.annotation.processing.ProcessingEnvironment</code></a></p>
@@ -215,8 +220,10 @@ SourceVersion getSourceVersion();
 Filer getFiler();
 
 // Affichage utilisateur
-Messager getMessager();</code></pre>
-<p>TODO : décrire ces choses</p>
+Messager getMessager();
+
+// Autres classes :
+// ElementFilter, AbstractVisitors...</code></pre>
 </section><section id="getsupportedannotationtypes" class="slide level3">
 <h1>getSupportedAnnotationTypes</h1>
 <ul>
@@ -229,8 +236,8 @@ Messager getMessager();</code></pre>
 <pre><code>boolean process(    Set&lt;? extends TypeElement&gt; annotations,
                     RoundEnvironment roundEnv)</code></pre>
 <ul>
-<li>On reçoit l'ensemble des annotations à traiter</li>
-<li>On retourne <code>true</code> pour empêcher les autres processeurs d'être appelés</li>
+<li>On reçoit l'ensemble des annotations à traiter,</li>
+<li>On retourne <code>true</code> pour <em>claimer</em> les annotations et empêcher les autres processeurs de les traiter.</li>
 </ul>
 </section><section id="roundenvironment" class="slide level3">
 <h1>RoundEnvironment</h1>
@@ -246,6 +253,7 @@ Set&lt;? extends Element&gt; getElementsAnnotatedWith(Class&lt;? extends Annotat
 <p>Représente un <em>package</em>, une <em>classe</em>, une <em>méthode</em>, ...</p>
 <p>Pour parcourir les données d'un élément, il faut soit appeler <code>getKind()</code> soit utiliser un visiteur.</p>
 <p><strong>Ne pas utiliser <code>instanceof</code> !</strong></p>
+<p><em>Petit exercice : <strong>POURQUOI ?</strong> </em></p>
 </section><section id="element-1" class="slide level3">
 <h1>Element</h1>
 <pre><code>// Visiter l&#39;élément :
@@ -267,48 +275,59 @@ List&lt;? extends AnnotationMirror&gt; getAnnotationMirrors();
 <h1>Les sortes d'Element</h1>
 <p><code>ElementKind</code></p>
 <p><em>annotation, class, constructeur, enum, une constante enum, parametre d'exception, champ, initializeur d'instance, interface, variable locale, méthode, package, paramètre, variable de resource, initializeur statique, paramètre de type, autres</em> (futur).</p>
-</section><section id="récupérer-un-type" class="slide level3">
-<h1>Récupérer un type</h1>
-<pre><code>TypeMirror serializable = processingEnv.getElementUtils().getTypeElement(Serializable.class.getCanonicalName()).asType();</code></pre>
+<!---
+### Récupérer un type
+
+    TypeMirror serializable = processingEnv.getElementUtils().getTypeElement(Serializable.class.getCanonicalName()).asType();
+--->
 </section><section id="le-filer" class="slide level3">
 <h1>Le Filer</h1>
 <p><a href="http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/Filer.html"><code>javax.annotation.processing.Filer</code></a></p>
-</section><section id="section-4" class="slide level3">
-<h1></h1>
-<p>Créer un nouveau source java</p>
+</section><section id="créer-un-nouveau-source-java" class="slide level3">
+<h1>Créer un nouveau source java</h1>
 <pre><code>Filer filer = processingEnv.getFiler();
 JavaFileObject jfo = filer.createSourceFile(
      classElement.getQualifiedName() + &quot;Info&quot;);
 PrintWriter pw = new PrintWriter( jfo );
 ...</code></pre>
-</section><section id="section-5" class="slide level3">
-<h1></h1>
-<p>Créer une nouvelle resource</p>
+</section><section id="créer-une-nouvelle-ressource" class="slide level3">
+<h1>Créer une nouvelle ressource</h1>
 <pre><code>Filer filer = processingEnv.getFiler();
 try {
     PrintWriter pw = new PrintWriter(filer.createResource(
-          StandardLocation.SOURCE_OUTPUT, &quot;&quot;, &quot;Todo.txt&quot;)
+          StandardLocation.SOURCE_OUTPUT, &quot;fr.lteconsulting&quot;, &quot;Todo.txt&quot;)
           .openOutputStream());
     pw.println(&quot;Quelque chose&quot;);
     pw.close();
 } catch (IOException ioe) {
     messager.printMessage(Kind.ERROR, ioe.getMessage());
 }</code></pre>
+</section><section id="créer-un-nouveau-fichier-.class" class="slide level3">
+<h1>Créer un nouveau fichier .class</h1>
+<pre><code>Filer filer = processingEnv.getFiler();
+JavaFileObject jfo = filer.createClassFile(
+     classElement.getQualifiedName() + &quot;Info&quot;);
+PrintWriter pw = new PrintWriter( jfo );
+...</code></pre>
 </section><section id="utilisation-de-templates" class="slide level3">
 <h1>Utilisation de templates !</h1>
 <ul>
-<li>Velocity, ...</li>
 <li>Ne générer que le minimum de code !</li>
+<li>Velocity, ...</li>
+<li>Java Poet, ...</li>
 </ul>
 </section><section id="le-messager" class="slide level3">
 <h1>Le Messager</h1>
-<pre><code>messager.printMessage( Kind.ERROR, 
-    &quot;Cette classe n&#39;a pas de champ ID : &quot; + clazz.getSimpleName() );
-
-// sortie :
-error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
+<pre class="java"><code>messager.printMessage( Kind.ERROR, 
+    &quot;Cannot find an ID field !&quot; );</code></pre>
+<pre><code>// sortie :
+error: At Book.java, line 12 : Cannot find an ID field !
 1 error</code></pre>
-<p>MONTRER L'ERREUR DE COMPILATION ET UNE COPIE D'ECRAN ECLIPSE</p>
+</section><section id="le-messager-dans-eclipse" class="slide level3">
+<h1>Le Messager dans Eclipse</h1>
+<figure>
+<img src="error-in-eclipse.png" alt="La même erreur dans Eclipse" /><figcaption>La même erreur dans Eclipse</figcaption>
+</figure>
 </section></section>
 <section><section id="la-compilation-java" class="titleslide slide level2"><h1>La compilation Java</h1></section><section id="phases" class="slide level3">
 <h1>3 phases</h1>
@@ -320,7 +339,7 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <li><em>Annotation Processing</em></li>
 <li><em>Analyse</em> et <em>Generate</em></li>
 </ul>
-<p>http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html</p>
+<p><a href="http://openjdk.java.net/groups/compiler/doc/compilation-overview/index.html">openjdk.java.net/groups/compiler/doc/compilation-overview</a></p>
 </section><section id="javac" class="slide level3">
 <h1>JavaC</h1>
 <table>
@@ -347,6 +366,18 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <td style="text-align: left;">Passer des options</td>
 <td style="text-align: left;">-A<em>cle=valeur</em></td>
 </tr>
+</tbody>
+</table>
+</section><section id="javac-suite" class="slide level3">
+<h1>JavaC (suite)</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Action</th>
+<th style="text-align: left;">Paramètres</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td style="text-align: left;">Désactiver l'AP</td>
 <td style="text-align: left;">-proc:none</td>
@@ -356,15 +387,15 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 <td style="text-align: left;">-proc:only</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">TODO</td>
+<td style="text-align: left;">Chemin de recherche des sources</td>
 <td style="text-align: left;">-sourcePath</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">TODO</td>
+<td style="text-align: left;">Désactiver la génération des <code>.class</code> implicite</td>
 <td style="text-align: left;">-implicit:none</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">TODO</td>
+<td style="text-align: left;">Répertoire de sortie des <code>.class</code></td>
 <td style="text-align: left;">-d</td>
 </tr>
 <tr class="even">
@@ -373,48 +404,19 @@ error: Cette classe n&#39;a pas de champ ID : fr.lteconsulting.Data
 </tr>
 </tbody>
 </table>
-<p>TODO autres options</p>
-<p>ATTENTION : le warning si on ne met pas <em>-implicit:none</em></p>
-<p>http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching</p>
-</section><section id="packaging-maven" class="slide level3">
-<h1>Packaging Maven</h1>
-<ul>
-<li>artefact <em>Annotations</em>,</li>
-<li>artefact <em>Processeurs</em>,</li>
-<li>artefacts <em>clients</em>.</li>
-</ul>
-</section><section id="packaging-maven-1" class="slide level3">
-<h1>Packaging Maven</h1>
-<ul>
-<li>artefact <em>Annotations</em>,</li>
-<li>artefact <em>Processeurs</em>,</li>
-<li>artefacts <em>clients</em>.</li>
-</ul>
+<p><em>ATTENTION : le warning si on ne met pas <code>-implicit:none</code></em></p>
+<p><a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching">docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html#searching</a></p>
 </section></section>
-<section><section id="intégration-dans-eclipse" class="titleslide slide level2"><h1>Intégration dans Eclipse</h1></section><section id="section-6" class="slide level3">
-<h1></h1>
+<section><section id="intégration-avec-eclipse" class="titleslide slide level2"><h1>Intégration avec Eclipse</h1></section><section id="configuration" class="slide level3">
+<h1>Configuration</h1>
 <p>Eclipse utilise son propre compilateur, JDT.</p>
-<figure>
-<img src="eclipse-settings.png" alt="Settings Eclipse" /><figcaption>Settings Eclipse</figcaption>
-</figure>
-<p>Montrer aussi le messager</p>
-<p>Il faut configurer le projet ou utiliser m2e, ou autre...</p>
-<p>ATTENTION ! Si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.</p>
+<p><em>Configuration possible du projet par m2e</em></p>
+<p><img src="eclipse-settings.png" style="height:40%;"></p>
+</section><section id="attention" class="slide level3">
+<h1>ATTENTION</h1>
+<p>Dans Eclipse, si le projet contenant le processeur est ouvert, l'annotation processing est désactivé.</p>
 </section></section>
-<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section><section id="section-7" class="slide level3">
-<h1></h1>
-<ul>
-<li>Pas possible de modifier des classes existantes</li>
-<li>Certains bug ne permettent pas de traiter correctement les génériques</li>
-</ul>
-</section><section id="hacking-au-delà" class="slide level3">
-<h1>Hacking au delà</h1>
-<ul>
-<li>Lombok : quelques hack pour accéder à l'implémentation (javac de sun et jdt) et modifier l'AST</li>
-<li>Immutables : quelques workaround captant les implementations JDK / JDT pour gérer les génériques</li>
-</ul>
-</section></section>
-<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section><section id="exemple-1" class="slide level3">
+<section><section id="tests-unitaires" class="titleslide slide level2"><h1>Tests unitaires</h1></section><section id="exemple" class="slide level3">
 <h1>Exemple</h1>
 <pre class="java"><code>JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
@@ -430,13 +432,13 @@ CompilationTask task = compiler.getTask(
 // Force les processeurs
 task.setProcessors(processors);
 
-boolean successful = task.call();
-diagnosticCollector.getDiagnostics();
-fileManager.getOutputFiles();</code></pre>
-</section><section id="bibliothèque-de-test" class="slide level3">
-<h1>Bibliothèque de test</h1>
-<p><a href="https://github.com/google/compile-testing">Compile-Testing</a></p>
-</section><section id="section-8" class="slide level3">
+boolean successful = task.call();      // succès ou échec
+diagnosticCollector.getDiagnostics();  // logs structurés de compilation
+fileManager.getOutputFiles();          // fichiers de sortie</code></pre>
+</section><section id="compile-testing" class="slide level3">
+<h1><a href="https://github.com/google/compile-testing">Compile-Testing</a></h1>
+<p>Bibliothèque de test développée par Google, pour aider le développement de <a href="https://github.com/google/auto/">Auto</a> et <a href="http://google.github.io/dagger/">Dagger</a></p>
+</section><section id="section-4" class="slide level3">
 <h1></h1>
 <p>Test positif</p>
 <pre class="java"><code>assert_().about(javaSource())
@@ -445,7 +447,7 @@ fileManager.getOutputFiles();</code></pre>
    .compilesWithoutError()
    .and()
    .generatesSources(JavaFileObjects.forResource(&quot;GeneratedHelloWorld.java&quot;));</code></pre>
-</section><section id="section-9" class="slide level3">
+</section><section id="section-5" class="slide level3">
 <h1></h1>
 <p>et négatif</p>
 <pre class="java"><code>JavaFileObject fileObject = JavaFileObjects.forResource(&quot;HelloWorld.java&quot;);
@@ -458,30 +460,157 @@ assert_().about(javaSource())
     .onLine(23)
     .atColumn(5);</code></pre>
 </section></section>
-<section><section id="utilisations" class="titleslide slide level2"><h1>Utilisations</h1></section><section id="section-10" class="slide level3">
+<section><section id="démo-time" class="titleslide slide level2"><h1>Démo Time !</h1></section></section>
+<section><section id="limitations" class="titleslide slide level2"><h1>Limitations</h1></section><section id="section-6" class="slide level3">
 <h1></h1>
 <ul>
+<li>Pas d'accès à l'AST complet (corps des méthodes)</li>
+<li>Pas possible de modifier des classes existantes</li>
+<li>Certains bug ne permettent pas de traiter correctement les génériques</li>
+<li>Java et les IDE ne surveillent que les éléments annotés pour redéclencher le processing (parfois problématique lorsque l'on a des dépendances complexes -&gt; <code>Alt+F5</code> !)</li>
+</ul>
+</section><section id="hacking-au-delà" class="slide level3">
+<h1>Hacking au delà</h1>
+<ul>
+<li><a href="https://projectlombok.org/">Lombok</a> : de bons <em>hacks</em> pour accéder à l'implémentation (javac de sun et jdt) et modifier l'AST</li>
+<li>Immutables : quelques workarounds captant les implementations JDK / JDT pour gérer les génériques</li>
+<li>Explications techniques générales dans <a href="http://scg.unibe.ch/archive/projects/Erni08b.pdf">The Hacker's guide to JavaC</a></li>
+</ul>
+</section></section>
+<section><section id="exemples-de-bibliothèques" class="titleslide slide level2"><h1>Exemples de bibliothèques</h1></section><section id="section-7" class="slide level3">
+<h1></h1>
+<ul>
+<li>JPA meta-model generation (JSR-317),</li>
 <li>Dagger,</li>
 <li>Google Auto,</li>
 <li>Immutables,</li>
 <li>Hexa Binding,</li>
 <li>Lombok,</li>
-<li>GWT,</li>
-<li>JPA model generation (JSR-317)</li>
-</ul>
-</section><section id="lombok" class="slide level3">
-<h1>Lombok</h1>
-<ul>
-<li>http://stackoverflow.com/questions/6107197/how-does-lombok-work</li>
+<li>GWT (RequestFactory)</li>
 </ul>
 </section></section>
-<section><section id="liens" class="titleslide slide level2"><h1>Liens</h1></section><section id="section-11" class="slide level3">
+<section><section id="liens-en-vrac" class="titleslide slide level2"><h1>Liens en vrac</h1></section><section id="section-8" class="slide level3">
 <h1></h1>
-<p><a href="http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8">JM Doudoux</a></p>
+<p><a href="http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/validator-annotation-processor.html">Hibernate Validation</a>, <a href="http://jmdoudoux.developpez.com/cours/developpons/java/chap-annotations.php#annotations-8">JM Doudoux</a>, <a href="https://projectlombok.org/">Lombok</a>, <a href="http://stackoverflow.com/questions/6107197/how-does-lombok-work">How Lombok works ?</a>, <a href="http://notatube.blogspot.fr/2010/11/project-lombok-trick-explained.html">Lombok encore...</a>, <a href="http://scg.unibe.ch/archive/projects/Erni08b.pdf">Hacking JavaC</a>, <a href="https://github.com/ltearno/hexa.tools/blob/master/hexa.binding/README.md">HexaBinding</a>, <a href="http://thecodersbreakfast.net/index.php?post/2009/07/09/Enforcing-design-rules-with-the-Pluggable-Annotation-Processor">Coders Breakfast</a>, <a href="http://www.angelikalanger.com/Conferences/Slides/JavaAnnotationProcessing-JSpring-2008.pdf">Prez d'Angelika Langer</a>, <a href="https://deors.wordpress.com/2011/10/08/annotation-processors/">Dr. Macphail's trance</a>, <a href="https://openclassrooms.com/courses/java-et-les-annotations/creez-et-utilisez-vos-propres-annotations">Créez et utilisz vos annotations</a>, <a href="https://docs.oracle.com/javase/7/docs/technotes/guides/apt/GettingStarted.html">Histoire des annotation processing</a>, <a href="https://www.parleys.com/search/croisier">4 vidéos sur Parleys</a>, <a href="https://www.google.fr/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;uact=8&amp;ved=0CCEQFjAAahUKEwi9gJu1gtPHAhVF6RQKHU9ZCPA&amp;url=http%3A%2F%2Fwww.parisjug.org%2Fxwiki%2Fwiki%2Foldversion%2Fdownload%2FMeeting%2F20130212%2FpresentationDimitriBaeliGillesDiGuglielmo.pdf&amp;ei=0x_kVf3KNcXSU8-yoYAP&amp;usg=AFQjCNGgRSIrnU3yt0BMokotzqEC3aZ3VA&amp;sig2=AKXWbGrIBdbw9N5SJhYr-w">Utilisation de la JSR-269 chez Les Furets</a>, <a href="https://weblogs.java.net/blog/emcmanus/archive/2006/06/using_annotatio.html">Save method parameter names</a>, <a href="http://fr.slideshare.net/Zenika/annotations-paris-jug">Au JUG Paris par Olivier Croisier...</a></p>
 </section></section>
-<section><section id="pas-traités..." class="titleslide slide level2"><h1>Pas traités...</h1></section></section>
-<section><section id="email-eugene-lucas-immutables" class="titleslide slide level2"><h1>email Eugene Lucas (Immutables)</h1></section></section>
-<section><section id="email-question-m.-gruber-dagger" class="titleslide slide level2"><h1>email question M. Gruber (Dagger)</h1></section></section>
+<section><section id="et-voilà" class="titleslide slide level2"><h1>Et voilà !</h1></section><section id="merci" class="slide level3">
+<h1>Merci !</h1>
+<p>Rendez-vous sur</p>
+<p><a href="https://github.com/ltearno/annotation-processing">github.com/ltearno/annotation-processing</a></p>
+<p>Twitter : <code>@ltearno</code></p>
+<p>LinkedIn : <a href="https://fr.linkedin.com/in/lteconsulting">fr.linkedin.com/in/lteconsulting</a></p>
+<p><a href="http://www.lteconsulting.fr">LTE Consulting</a></p>
+<!---
+## email Eugene Lucas (Immutables)
+
+Hi Eugene,
+
+I am writing to you because you are the main committer of the immutables.io project.
+
+I got a question related to annotation processing.
+
+In the immutable docs, this sentence can be read :
+
+    "Immutables do not support type parameters in the sense that you cannot add type variables to the abstract value type and construct parametrized instances."
+
+As i am also writing a project using annotation processing to generate boiler plate code, i think i faced a similar problem :
+
+When a generated type is referenced and parametrized, calling the TypeMirror.toString() method will return "<any>" instead of the fully qualified name of the refered type. It does not happen if the referenced type is not parametrized.
+
+This behavior does not happen in Eclipse (where the JDT compiler is used). JDT always returns the correct result. This makes me think that the javac behavior is buggy.
+
+So my first question is :
+
+- is the immutables.io limitation due to that bug in the java compiler ?
+- do you foresee any solution to mitigate this problem ? i find myself in a kind of despair because i cannot find a way to get the correct information from the compiler...
+
+I've also contacted people from the Dagger project, which i think had similar problems (some comments in their code lead me to this idea)...
+
+Thanks
+
+
+
+Hi Arnaud
+
+I really don't know if we (at Immutables) are gave up on full generic support, or just waiting the right time or tools, or just inspiration. So to the point, I believe it is possible to get the information we need during annotation processing, but it's complicated because of 2 factors:
+1. Annotation processing api and utilities are not powerful enough to do proper type variable handling in all cases.
+2. Both Javac's and Eclipse's annotation processing api implementations have various bugs in handling of generics.
+
+A level of generic support should be also considered. If, for example, Immutables do not allow fully parametrized types, it does support extending/implementing types supplying actual type parameters. It was much easier to do this than full generic support, but still, it required to work around a number of Javac/Eclipse bugs. Full support would require to
+1) Extract most precise information about declarations (which would not be distorted by bugs in mirror api implementation)
+2) Resolve correct types, which might involve type variable substitution, upper and lower bounds, intersection types depending on what you need to support.
+
+The 1) could be archived by decomposing DeclaredType and it's type arguments. In worst case it might require downcasting and extracting Eclipse and Javac specific ASTs to collect precise information. Such downcasting is heavily used by Lombok. Immutables uses it from time to time to overcome compiler bugs or limitations.
+
+The 2) require some non-trivial computations, resembling ones in Guava's com.google.common.reflect.TypeResolver for reflection.
+
+Hope this may help you. If you came up with some new information on this or have additional question feel free to share it or ask.
+
+Thanks
+
+
+
+
+
+
+
+
+
+## email question M. Gruber (Dagger)
+
+Hi M. Gruber,
+
+I am a developper and found your contact on github.
+
+Currently writing a data binding library using annotation processing to generate boilerplate code, i found a problem that i think you also faced in the Dagger project.
+
+When analysing existing type elements in classes, if a type element is a class generated during the annotation processing and parametrized with type parameters, then the toString() method of its TypeMirror returns <any> instead of the generated class name.
+
+This does not happen when the generated class has no type parameter specified.
+
+For example if this is written in a source file :
+
+    class Blabla
+    {
+        GeneratedClass<Integer> field;
+    }
+
+the TypeMirror.toString() will return "<any>" for the field's type. But if this is written :
+
+    class Blabla
+    {
+        GeneratedClass field;
+    }
+
+the same methods returns the correct result which is "GeneratedClass".
+
+
+
+In the github repo of Dagger, in this file :
+
+    https://github.com/square/dagger/blob/master/compiler/src/main/java/dagger/internal/codegen/Util.java
+
+at line 165, i found
+
+        // Paramterized types which don't exist are returned as an error type whose name is "<any>"
+        if ("<any>".equals(errorType.toString())) {
+          throw new CodeGenerationIncompleteException(
+              "Type reported as <any> is likely a not-yet generated parameterized type.");
+        }
+
+
+
+So my question is : do you know a way to obtain the correct information for the type ? Maybe it's on purpose or a bug, i wanted to have your advice.
+
+Just another info : inside Eclipse, that is compiling the java code with JDT, the thing works fine and gievs "GeneratedClass<Integer>".
+
+So that seems to be a bug on javac side, what do you think ?
+
+Thanks a lot for your answer !
+
+
+-->
+</section></section>
     </div>
   </div>
 
