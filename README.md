@@ -3,7 +3,7 @@
 Présentation de la JSR 269 - Pluggable Annotation API - Toulouse JUG - 24 septembre 2015
 
 Le plus simple est de cloner ou de télécharger le dépôt,
-puis de glisser le ficher `annotation-processing.html` dans un bon navigateur.
+puis de glisser le ficher `slides/annotation-processing.html` dans un bon navigateur.
 
 Les liens sont actifs de façon à retrouver des informations plus complètes sur un sujet précis.
 
